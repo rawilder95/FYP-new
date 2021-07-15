@@ -484,6 +484,9 @@ p = spc(sp, data.subject, LL, recog);
 spc_rec= {};
 list_rec= {};
 lag_rec= {};
+op_rec= {}; 
+sp_both_rec= {};
+sp_both= [];
 for subj= 1:length(nsubj)
     for ses= 1:length(nses)
         if ~isempty(data.recalls(data.subject==nsubj(subj) & data.session== nses(ses)))
@@ -492,11 +495,15 @@ for subj= 1:length(nsubj)
             list= data.pres.list(ifr_idx,:);
             recall= data.recalls(ifr_idx,1:16);
             st_lag= LL-recall-sp+1;
-            
+            recitemnos= data.rec_itemnos(ifr_idx,:);
+            presitemnos= data.pres_itemnos(ifr_idx,:);
+            rec_mask= ismember(recitemnos, presitemnos);
             for i = 1:length(sp(:,1))
                 sp(i,:)= 1:length(sp(1,:));
             end 
-            
+            for i = 1:LL
+            sp_both(i)= sum(sum(data.recalls(ifr_idx,:)== i));
+            end 
             recognized= data.pres.recognized(ifr_idx,:);
             
             if any(any(isnan(recognized)))
@@ -507,6 +514,7 @@ for subj= 1:length(nsubj)
                 spc_rec{subj,ses}= spc(sp, data.subject(ifr_idx,:), LL, logical(recognized));
                 list_rec{subj, ses}= spc(list, data.subject(ifr_idx,:), LL, logical(recognized));
                 lag_rec{subj, ses}= spc(st_lag, data.subject(ifr_idx,:), LL, logical(recognized));
+                
             end 
         end 
     end 
@@ -521,12 +529,24 @@ lag_rec= lag_rec(~cellfun('isempty', lag_rec));
 lag_rec= cell2mat(lag_rec);
 %%
 close all;
-plot(mean(spc_rec), 'o-')
+subplot(2,1,1)
+plot(p_sp)
 xlim([1,LL])
 ylim([0.5,1])
+title('SP IFR and Final Rec')
+subplot(2,1,2)
+plot(mean(spc_rec), 'o-')
+title('SP Final Rec Not Necessarily IFR')
 
 %%
 close all
+subplot(2,1,1)
+plot(p_list, 'o-')
+xlim([1,LL]) 
+ylim([0.5, 1])
+title('List IFR and Final Rec') 
+xlabel('List')
+subplot(2,1,2)
 plot(mean(list_rec), 'o-')
 xlim([1,LL]) 
 ylim([0.5, 1])
@@ -534,9 +554,85 @@ title('List Recognition Only')
 xlabel('List')
 %%
 close all
+subplot(2,1,1)
+plot(p_lag, 'o-')
+xlim([1,LL]) 
+ylim([0.1, 1])
+title('Study Test Lag IFR and Final Rec') 
+subplot(2,1,2)
 plot(mean(lag_rec), 'o-')
 xlim([1,LL]) 
 ylim([0.1, 1])
 title('Study Test Lag Final Recognition Only') 
 %%
+
+spc_rec= {};
+list_rec= {};
+lag_rec= {};
+op_rec= {}; 
+sp_both_rec= {};
+sp_both= [];
+for subj= 1:length(nsubj)
+    for ses= 1:length(nses)
+        if ~isempty(data.recalls(data.subject==nsubj(subj) & data.session== nses(ses)))
+            ifr_idx= (data.subject==nsubj(subj) & data.session== nses(ses));
+            sp= zeros(size(data.pres.recognized(ifr_idx,:)));
+            list= data.pres.list(ifr_idx,:);
+            recall= data.recalls(ifr_idx,1:16);
+            st_lag= LL-recall-sp+1;
+            recitemnos= data.rec_itemnos(ifr_idx,:);
+            presitemnos= data.pres_itemnos(ifr_idx,:);
+            rec_mask= ismember(recitemnos, presitemnos);
+            for i = 1:length(sp(:,1))
+                sp(i,:)= 1:length(sp(1,:));
+            end 
+            for i = 1:LL
+            sp_both(i)= sum(sum(data.recalls(ifr_idx,:)== i));
+            end 
+            recognized= data.pres.recognized(ifr_idx,:);
+            
+            if any(any(isnan(recognized)))
+                continue
+                disp(recognized)
+            else
+                st_lag(~recognized)= nan;
+                spc_rec{subj,ses}= spc(sp, data.subject(ifr_idx,:), LL, logical(recognized));
+                list_rec{subj, ses}= spc(list, data.subject(ifr_idx,:), LL, logical(recognized));
+                lag_rec{subj, ses}= spc(st_lag, data.subject(ifr_idx,:), LL, logical(recognized));
+                
+            end 
+        end 
+    end
+end 
+    
+    
+    
+    %%
+for subj = 1:length(nsubj)
+    for ses= 1:length(nses)
+        if ~isempty(data.recalls(data.subject==nsubj(subj) & data.session== nses(ses)))
+            ifr_idx= (data.subject==nsubj(subj) & data.session== nses(ses));
+%             sp= zeros(size(data.pres.recognized(ifr_idx,:)));
+            op= zeros(size(recall));
+            for i = 1:length(recall(1,:))
+                op(:,i)= i;
+            end 
+            op(recall<1)= 0;
+            list= data.pres.list(ifr_idx,:);
+            recall= data.recalls(ifr_idx,:);
+            st_lag= LL-recall-op+1;
+            st_lag(recall<1)= 0;
+            recognized= data.pres.recognized(ifr_idx,:);
+            zeros(data.pre)
+            recall()
+            recitemnos= data.rec_itemnos(ifr_idx,:);
+            presitemnos= data.pres_itemnos(ifr_idx,:);
+            rec_mask= ismember(recitemnos, presitemnos);
+            for i = 1:LL
+            end 
+        end 
+            
+        end 
+        
+    end 
 
