@@ -107,7 +107,7 @@ ylabel('Probability')
 xlabel('Serial Position')
 
 subplot(2,1,2)
-plot(mean(full_list), 'o-')
+plot(nanmean(full_list), 'o-')
 xlim([1,LL])
 ylim([0.75, 1])
 subtitle('sum(recognized== 1 in list( i )/LL')
@@ -426,6 +426,13 @@ for subj = 1:length(nsubj)
             recall(isnan(recognized))=nan;
             ifr_num= [];
             ifr_denom= [];
+            presitemnos= zeros(size(recall));
+            presitemnos(:,1:LL)= data.pres_itemnos(ifr_idx,:);
+            recitemnos= data.rec_itemnos(ifr_idx,:);
+            recitemnos(recitemnos<1)=nan;
+            presitemnos(recognized==0)=nan;
+            recall(~ismember(recitemnos,presitemnos))=nan;
+            recall(recall<1)= nan;
             for i = 1:LL
                 ifr_num(i)= sum(sum(recall==i & recognized== 1));
                 ifr_denom(i)= sum(sum(recall==i));

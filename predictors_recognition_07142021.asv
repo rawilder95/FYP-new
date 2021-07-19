@@ -423,8 +423,15 @@ for subj = 1:length(nsubj)
             recall= data.recalls(ifr_idx,:);
             recognized= zeros(size(recall));
             recognized(:,1:LL)= data.pres.recognized(ifr_idx,:);
+            recall(isnan(recognized))=nan;
             ifr_num= [];
             ifr_denom= [];
+            presitemnos= data.pres_itemnos(ifr_idx,:);
+            recitemnos= data.rec_itemnos(ifr_idx,:);
+            recitemnos(recitemnos<1)=nan;
+            presitemnos(recognized==0)=nan;
+%             recall(~ismember(recitemnos,presitemnos))=nan;
+            recall(recall<1)= nan;
             for i = 1:LL
                 ifr_num(i)= sum(sum(recall==i & recognized== 1));
                 ifr_denom(i)= sum(sum(recall==i));
@@ -442,4 +449,5 @@ plot(nanmean(p_rec), 'o-')
 xlim([1,LL])
 xlabel('Serial Position')
 ylabel('Probability')
-title('Probability of Final Recognition 
+title('Probability of Final Recognition ƒ Serial Position')
+subtitle('Num= IFR & Recognized, Denom= IFR')
