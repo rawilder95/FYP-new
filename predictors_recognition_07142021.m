@@ -69,8 +69,8 @@ for subj= 1:length(nsubj)
             end 
             
           
-            ifr_recall= data.recalls(ifr_idx,:);
-            ifr_recall(isnan(recognized))= nan;
+%             ifr_recall= data.recalls(ifr_idx,:);
+%             ifr_recall(isnan(recognized))= nan;
             ifr_list= data.pres.list(ifr_idx,:);
             ifr_list(isnan(recognized))= nan;
             full_sp{subj, ses}= rec_sp;
@@ -244,7 +244,7 @@ for subj= 1:length(nsubj)
                     recitemnos(ismember(recitemnos, find_nan_rec))= nan;
                 
 %                (~ismember(recitemnos,presitemnos))=0;
-                recall(isnan(presitemnos))=nan;
+                recall(isnan(recitemnos))=nan;
 
 
                 op= zeros(size(recall));
