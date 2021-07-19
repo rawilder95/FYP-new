@@ -238,7 +238,11 @@ for subj= 1:length(nsubj)
                 recognized(:,1:LL)=data.pres.recognized(ifr_idx,:);
                 recitemnos= data.rec_itemnos(ifr_idx,:);
                 presitemnos= data.pres_itemnos(ifr_idx,:);
-                presitemnos(isnan(recognized))=nan;
+%                 presitemnos(isnan(recognized))=nan;
+% This is how you should be setting things to nan
+                    find_nan_rec= presitemnos(isnan(recognized));
+                    recitemnos(ismember(recitemnos, find_nan_rec))= nan;
+                
 %                (~ismember(recitemnos,presitemnos))=0;
                 recall(isnan(presitemnos))=nan;
 
@@ -338,7 +342,9 @@ for subj= 1:length(nsubj)
                 presitemnos= data.pres_itemnos(ifr_idx,:);
                 presitemnos(isnan(recognized))=nan;
                 recall(~ismember(recitemnos,presitemnos))=0;
-                recall(isnan(presitemnos))=nan;
+                find_nan_rec= presitemnos(isnan(recognized));
+                    recitemnos(ismember(recitemnos, find_nan_rec))= nan;
+                recall(isnan(recitemnos))= nan;
 
 
                 op= zeros(size(recall));
@@ -409,3 +415,33 @@ ylabel('Frequency')
 title('Lag: Items IFR and Final Recognition')
 
 %% 
+p_rec= {};
+for subj = 1:length(nsubj)
+    for ses = 1:length(nses)
+        if ~isempty(data.recalls(data.subject== nsubj(subj) & data.session== nses(ses),:))
+            ifr_idx= data.subject== nsubj(subj) & data.session== nses(ses);
+            recall= data.recalls(ifr_idx,:);
+            recognized= zeros(size(recall));
+            recognized(:,1:LL)= data.pres.recognized(ifr_idx,:);
+            recall(isnan(recognized))=nan;
+            ifr_num= [];
+            ifr_denom= [];
+            for i = 1:LL
+                ifr_num(i)= sum(sum(recall==i & recognized== 1));
+                ifr_denom(i)= sum(sum(recall==i));
+            end 
+            p_rec{subj,ses}= ifr_num./ifr_denom;
+            
+        end 
+    end 
+end 
+
+p_rec= cell2mat(p_rec(~cellfun('isempty', p_rec)));
+
+close all;
+plot(nanmean(p_rec), 'o-')
+xlim([1,LL])
+xlabel('Serial Position')
+ylabel('Probability')
+title('Probability of Final Recognition ƒ Serial Position')
+subtitle('Num= IFR & Recognized, Denom= IFR')
