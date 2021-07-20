@@ -69,8 +69,8 @@ for subj= 1:length(nsubj)
             end 
             
           
-            ifr_recall= data.recalls(ifr_idx,:);
-            ifr_recall(isnan(recognized))= nan;
+%             ifr_recall= data.recalls(ifr_idx,:);
+%             ifr_recall(isnan(recognized))= nan;
             ifr_list= data.pres.list(ifr_idx,:);
             ifr_list(isnan(recognized))= nan;
             full_sp{subj, ses}= rec_sp;
@@ -107,7 +107,7 @@ ylabel('Probability')
 xlabel('Serial Position')
 
 subplot(2,1,2)
-plot(mean(full_list), 'o-')
+plot(nanmean(full_list), 'o-')
 xlim([1,LL])
 ylim([0.75, 1])
 subtitle('sum(recognized== 1 in list( i )/LL')
@@ -244,7 +244,7 @@ for subj= 1:length(nsubj)
                     recitemnos(ismember(recitemnos, find_nan_rec))= nan;
                 
 %                (~ismember(recitemnos,presitemnos))=0;
-                recall(isnan(presitemnos))=nan;
+                recall(isnan(recitemnos))=nan;
 
 
                 op= zeros(size(recall));
@@ -414,7 +414,7 @@ xlabel('Lag')
 ylabel('Frequency')
 title('Lag: Items IFR and Final Recognition')
 
-%% 
+%% Probability of Serial Position Curve
 p_rec= {};
 for subj = 1:length(nsubj)
     for ses = 1:length(nses)
@@ -423,14 +423,15 @@ for subj = 1:length(nsubj)
             recall= data.recalls(ifr_idx,:);
             recognized= zeros(size(recall));
             recognized(:,1:LL)= data.pres.recognized(ifr_idx,:);
-            recall(isnan(recognized))=nan;
+%             recall(isnan(recognized))=nan;
             ifr_num= [];
             ifr_denom= [];
-            presitemnos= data.pres_itemnos(ifr_idx,:);
+            presitemnos= zeros(size(recall));
+            presitemnos(:,1:LL)= data.pres_itemnos(ifr_idx,:);
             recitemnos= data.rec_itemnos(ifr_idx,:);
             recitemnos(recitemnos<1)=nan;
-            presitemnos(recognized==0)=nan;
-%             recall(~ismember(recitemnos,presitemnos))=nan;
+%             presitemnos(recognized==0)=nan;
+            recall(~ismember(recitemnos,presitemnos))=nan;
             recall(recall<1)= nan;
             for i = 1:LL
                 ifr_num(i)= sum(sum(recall==i & recognized== 1));

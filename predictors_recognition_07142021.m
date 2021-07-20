@@ -238,12 +238,8 @@ for subj= 1:length(nsubj)
                 recognized(:,1:LL)=data.pres.recognized(ifr_idx,:);
                 recitemnos= data.rec_itemnos(ifr_idx,:);
                 presitemnos= data.pres_itemnos(ifr_idx,:);
-%                 presitemnos(isnan(recognized))=nan;
-% This is how you should be setting things to nan
                     find_nan_rec= presitemnos(isnan(recognized));
                     recitemnos(ismember(recitemnos, find_nan_rec))= nan;
-                
-%                (~ismember(recitemnos,presitemnos))=0;
                 recall(isnan(recitemnos))=nan;
 
 
@@ -414,7 +410,7 @@ xlabel('Lag')
 ylabel('Frequency')
 title('Lag: Items IFR and Final Recognition')
 
-%% 
+%% Probability of Serial Position Curve
 p_rec= {};
 for subj = 1:length(nsubj)
     for ses = 1:length(nses)
@@ -423,14 +419,14 @@ for subj = 1:length(nsubj)
             recall= data.recalls(ifr_idx,:);
             recognized= zeros(size(recall));
             recognized(:,1:LL)= data.pres.recognized(ifr_idx,:);
-            recall(isnan(recognized))=nan;
+%             recall(isnan(recognized))=nan;
             ifr_num= [];
             ifr_denom= [];
             presitemnos= zeros(size(recall));
             presitemnos(:,1:LL)= data.pres_itemnos(ifr_idx,:);
             recitemnos= data.rec_itemnos(ifr_idx,:);
             recitemnos(recitemnos<1)=nan;
-            presitemnos(recognized==0)=nan;
+%             presitemnos(recognized==0)=nan;
             recall(~ismember(recitemnos,presitemnos))=nan;
             recall(recall<1)= nan;
             for i = 1:LL
@@ -449,6 +445,7 @@ close all;
 plot(nanmean(p_rec), 'o-')
 xlim([1,LL])
 xlabel('Serial Position')
+ylim([0.5 1])
 ylabel('Probability')
 title('Probability of Final Recognition ƒ Serial Position')
 subtitle('Num= IFR & Recognized, Denom= IFR')
