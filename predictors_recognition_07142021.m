@@ -69,8 +69,8 @@ for subj= 1:length(nsubj)
             end 
             
           
-%             ifr_recall= data.recalls(ifr_idx,:);
-%             ifr_recall(isnan(recognized))= nan;
+            ifr_recall= data.recalls(ifr_idx,:);
+            ifr_recall(isnan(recognized))= nan;
             ifr_list= data.pres.list(ifr_idx,:);
             ifr_list(isnan(recognized))= nan;
             full_sp{subj, ses}= rec_sp;
@@ -130,13 +130,13 @@ for subj= 1:length(nsubj)
             presitemnos= data.pres_itemnos(ifr_idx,:);
             recitemnos= data.rec_itemnos(ifr_idx,:);
             recitemnos(recitemnos<1)=nan;
-            presitemnos(recognized==0)=nan;
+           
 %             recall(~ismember(recitemnos,presitemnos))=nan;
-            recall(recall<1)= nan;
+            recall(recall<1)= 0;
              op= zeros(size(recall));
                 op= repmat(1:length(recall(1,:)), LL, 1);
                 op(recall==0)= 0;
-                op(isnan(recall))= nan;
+                op(isnan(recall))= 0;
                 
             lag= LL- recall+op-1;
             list= zeros(size(recall));
@@ -147,10 +147,13 @@ for subj= 1:length(nsubj)
             list(~ismember(recitemnos,presitemnos))= nan;
             list(list>LL)=nan;
             lag_mask= ismember(recitemnos,presitemnos);
+            lag(recall<1)=nan;
+            fr_lag= lag;
+            fr_lag(lag_mask==0)= nan;
 %             list(~ismember,presitemnos))=nan;
               for i = 1:21
                 ifr_lag(i)= nansum(nansum(lag== i-1));
-                frec_lag(i)= nansum(nansum(lag== i-1 & lag_mask==1));
+                frec_lag(i)= nansum(nansum(fr_lag== i -1));
                 end 
             
             full_recall{subj,ses}= recall;
@@ -172,17 +175,18 @@ lag_proportion= cell2mat(lag_proportion(~cellfun('isempty', lag_proportion)));
 close all;
 figure(3)
 histogram(full_recall)
-ylim([0,7000])
+% ylim([0,7000])
 title('Serial Position: IFR Items That Were Final Recognized')
 ylabel('Frequency')
 xlabel('Serial Position')
 xlim([0.5 LL+0.5])
+xticks([1:LL])
 
 %% Lag Proporiton
 close all;
 figure(3)
 plot(nanmean(lag_proportion), 'o-')
-
+ylim([0,1])
 title('Study-Test Lag: IFR and Tested in Final Recognition/ Recognized')
 ylabel('Probability of Recognition')
 xlabel('Study-Test Lag')
