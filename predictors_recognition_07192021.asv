@@ -491,4 +491,60 @@ p= plot(nanmean(sp_prop), '-o');
 xlim([1 LL])
 title('Serial Position FFR')
 hold on;
-plot(
+plot(12,nanmean(sp12_prop), 'r*' )
+
+%% Predictors for Recognition Matrix
+all_recognized= {};
+for subj= 1:length(nsubj)
+    for ses= 1:length(nses)
+        if ~isempty(data.recalls(data.subject== nsubj(subj) & data.session== nses(ses)));
+            ifr_idx= data.subject== nsubj(subj) & data.session== nses(ses);
+            recall= data.recalls(ifr_idx,:);
+            presitemnos= data.pres_itemnos(ifr_idx,:);
+            recitemnos= data.rec_itemnos(ifr_idx,:);
+            recognized= data.pres.recognized(ifr_idx,:);
+            find_nan= presitemnos(isnan(recognized));%37 of items not tested in final recognition
+            recitemnos(ismember(recitemnos, find_nan))= nan; %Mask out in recitemnos
+            not_fr= presitemnos(recognized==0); %Get the presitemnos
+            not_ifr= recitemnos(recall==0);
+            %Find items that were not recognized
+            recall(isnan(recitemnos))=nan;
+            recall(recall==0)= inf;
+            recitemnos(isinf(recall))=inf;
+            
+            op= repmat(1:length(recall(1,:)), [16,1]);
+            op(recall== inf)= inf;%Because we can't set this to zero or NaN
+            list= zeros(size(recall));
+            for i = 1:LL
+                list(i,:)= i;
+            end 
+            list(recall==inf)= inf;
+            list(isnan(recall))= nan;
+            st_lag= LL- recall+op-1;
+            st_lag(recall==inf)=inf; 
+            subject= zeros(size(recall));
+            subject(:,:)= unique(data.subject(ifr_idx,:));
+%             subject(recall==inf)=inf;
+            session= zeros(size(recall));
+            session(:,:)= unique(data.session(ifr_idx,:));
+%             session(recall==inf)=inf;
+            sp_all= recall(ismember(recitemnos,presitemnos));
+            op_all= op(ismember(recitemnos,presitemnos));
+            stlag_all= st_lag(ismember(recitemnos,presitemnos));
+            list_all= list(ismember(recitemnos,presitemnos));
+            subject_all= subject(ismember(recitemnos, presitemnos));
+            session_all= session(ismember(recitemnos,presitemnos));
+            recognized_all= recognized(ismember(presitemnos,recitemnos));
+            all_recognized{subj,ses}= [subject_all, session_all, sp_all, op_all, stlag_all, list_all, recognized_all];
+            if any(any(isnan(recognized)))
+%                 keyboard
+            end 
+            
+        end 
+    end 
+end 
+
+all_recognized= cell2mat(all_recognized(~cellfun('isempty', all_recognized)));
+
+savefile= 'recognition_mat_7212021.csv';
+    dlmwrite(savefile, all_recognized)
