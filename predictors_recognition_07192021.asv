@@ -430,7 +430,7 @@ xlabel('Serial Position')
 ylabel('Frequency')
 title('Histogram of Serial Position Values')
 subtitle('IFR Items Tested in Final Recognition')
-ylim([0 8000])
+ylim([0 7000])
 
 subplot(2,1,2)
 histogram(sp_ifr)
@@ -439,6 +439,44 @@ xticks([1:LL])
 
 xlabel('Serial Position')
 ylabel('Frequency')
-title('Histogram of Serial Position Values That ')
+title('Histogram of Serial Position Values That Were Final Recognized')
 subtitle('IFR Items Tested in Final Recognition')
-ylim([0 8000])
+ylim([0 7000])
+
+%% Serial Position Curve For Items That Are Correctly Recognized at SP 12
+
+% Serial position curve for proportion of items which 
+% are correctly recognized (at eg SP 12), out of items 
+% which are immediately free recalled (at eg SP 12) 
+% and tested in recognition (at eg SP 12)
+
+sp12_prop= {};
+for subj = 1:length(nsubj)
+    for ses= 1:length(nses)
+        if ~isempty(data.recalls(data.subject== nsubj(subj) & data.session== nses(ses)))
+            ifr_idx= data.subject== nsubj(subj) & data.session== nses(ses);
+            recall= data.recalls(ifr_idx,:);
+            recognized= data.pres.recognized(ifr_idx,:);
+            recitemnos= data.rec_itemnos(ifr_idx,:);
+            presitemnos= data.pres_itemnos(ifr_idx,:);
+            find_nan= presitemnos(isnan(recognized));
+% %             Mask out items that were not tested in FR
+            recitemnos(ismember(recitemnos, find_nan))= nan;
+            find_notrec= presitemnos(recognized==0);
+            
+            recall(isnan(recitemnos))=nan;
+            ifr_mask= ismember(recitemnos, find_notrec);
+            sp12_num= nansum(nansum(recognized(:,12)));
+            sp12_denom= nansum(nansum((recall==12)));
+            sp12_prop{subj,ses}= sp12_num./sp12_denom;
+            if any(any(isnan(recognized)))
+                break
+            end 
+        end     
+    end 
+end 
+
+% Get rid of empty cells and transform cell to a matrix
+sp12_prop= cell2mat(sp12_prop(~cellfun('isempty', sp12_prop)));
+
+nanmean(sp12_prop)
