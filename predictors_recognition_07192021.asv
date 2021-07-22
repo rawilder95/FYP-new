@@ -450,33 +450,45 @@ ylim([0 7000])
 % which are immediately free recalled (at eg SP 12) 
 % and tested in recognition (at eg SP 12)
 
+
 sp12_prop= {};
-for subj = 1:length(nsubj)
+sp_prop= {};
+for subj= 1:length(nsubj)
     for ses= 1:length(nses)
-        if ~isempty(data.recalls(data.subject== nsubj(subj) & data.session== nses(ses)))
-            ifr_idx= data.subject== nsubj(subj) & data.session== nses(ses);
-            recall= data.recalls(ifr_idx,:);
-            recognized= data.pres.recognized(ifr_idx,:);
-            recitemnos= data.rec_itemnos(ifr_idx,:);
-            presitemnos= data.pres_itemnos(ifr_idx,:);
-            find_nan= presitemnos(isnan(recognized));
-% %             Mask out items that were not tested in FR
-            recitemnos(ismember(recitemnos, find_nan))= nan;
-            find_notrec= presitemnos(recognized==0);
-            
-            recall(isnan(recitemnos))=nan;
-            ifr_mask= ismember(recitemnos, find_notrec);
-            sp12_num= nansum(nansum(recognized(:,12)));
-            sp12_denom= nansum(nansum((recall==12)));
-            sp12_prop{subj,ses}= sp12_num./sp12_denom;
-            if any(any(isnan(recognized)))
-                break
-            end 
-        end     
+        if ~isempty(data.recalls(data.subject== nsubj(subj) & data.session== nses(ses)));
+        ifr_idx= data.subject== nsubj(subj) & data.session== nses(ses);
+        recall= data.recalls(ifr_idx,:);
+        presitemnos= data.pres_itemnos(ifr_idx,:);
+        recitemnos= data.rec_itemnos(ifr_idx,:);
+        recognized= data.pres.recognized(ifr_idx,:);
+        fr12= nansum(recognized(:,12));
+        find_nan= presitemnos(isnan(recognized));%37 of items not tested in final recognition
+        recitemnos(ismember(recitemnos, find_nan))= nan; %Mask out in recitemnos
+        not_fr= presitemnos(recognized==0); %Get the presitemnos
+        recitemnos(ismember(recitemnos, not_fr))= nan; %Match the itemnos and mask out in recitemnos
+        %Find items that were not recognized
+        
+        recall(isnan(recitemnos))=nan;
+        %Everything necessary is masked out beforehand
+        for i = 1:LL
+            ifr(i)= sum(sum(recall== i));
+            fr(i)= nansum(recognized(:,i));
+        end 
+        ifr12= sum(sum(recall==12));
+        sp_prop{subj,ses}= ifr./fr;
+        sp12_prop{subj,ses}= ifr12/fr12;
+        end
+        
     end 
 end 
 
-% Get rid of empty cells and transform cell to a matrix
 sp12_prop= cell2mat(sp12_prop(~cellfun('isempty', sp12_prop)));
-
+sp_prop= cell2mat(sp_prop(~cellfun('isempty', sp_prop)));
 nanmean(sp12_prop)
+nanmean(sp_prop)
+close all
+p= plot(nanmean(sp_prop), '-o');
+xlim([1 LL])
+title('Serial Position FFR')
+hold on;
+plot(
