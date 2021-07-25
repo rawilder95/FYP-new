@@ -19,7 +19,7 @@ counter= 0;
 load('updated_peers_recognition.mat')
 data= new_data;
 
-ifr= data;
+ifr_sp= data;
 
 this_ses = [];
 
@@ -29,13 +29,13 @@ nsubj= unique(data.subject);
 LL= data.listLength;
 nsubj= unique(data.subject);
 nses= unique(data.session);
-nsubj= unique(ifr.subject);
-nses= unique(ifr.session);
+nsubj= unique(ifr_sp.subject);
+nses= unique(ifr_sp.session);
 rec_mask_full= make_clean_recalls_mask2d(data.recalls);
 data.recalls(~rec_mask_full)=0;
 
-%% PRobability IFR & FREC / FREC; List 
-
+%% Probability Final Recognition ƒ Serial Position & List
+% Disregard IFR
 sp_prob= {};
 list_prob= {};
 lag_prob= {};
@@ -109,7 +109,7 @@ end
 sp_prob= cell2mat(sp_prob(~cellfun('isempty', sp_prob)));
 list_prob= cell2mat(list_prob(~cellfun('isempty', list_prob)));
 lag_prob= cell2mat(lag_prob(~cellfun('isempty', lag_prob)));
-%% Plotting Figures
+%% Plotting Figures Final Recognition Probability Only
 
 close all;
 
@@ -117,12 +117,20 @@ subplot(2,1,1)
 plot(nanmean(sp_prob), 'o-');
 xlim([1 LL])
 ylim([0.5 1])
+title('Final Recognition ƒ Serial Position') 
+subtitle('Disregard IFR')
+ylabel('Probability')
+xlabel('Serial Position')
 
 subplot(2,1,2)
 xlim([1 LL])
 plot(nanmean(list_prob), 'o-');
 xlim([1 LL])
 ylim([0.5 1])
+title('Final Recognition ƒ List') 
+subtitle('Disregard IFR')
+ylabel('Probability')
+xlabel('List')
 %% Just in case a baseline clear all
 warning("OFF")
 clc;
@@ -145,7 +153,7 @@ counter= 0;
 load('updated_peers_recognition.mat')
 data= new_data;
 
-ifr= data;
+ifr_sp= data;
 
 this_ses = [];
 
@@ -155,11 +163,11 @@ nsubj= unique(data.subject);
 LL= data.listLength;
 nsubj= unique(data.subject);
 nses= unique(data.session);
-nsubj= unique(ifr.subject);
-nses= unique(ifr.session);
+nsubj= unique(ifr_sp.subject);
+nses= unique(ifr_sp.session);
 rec_mask_full= make_clean_recalls_mask2d(data.recalls);
 data.recalls(~rec_mask_full)=0;
-%% skfa;sldfj;a
+%% FFR
 lag_prop= {};
 op_prop= {};
 list_prop= {};
@@ -471,11 +479,11 @@ for subj= 1:length(nsubj)
         recall(isnan(recitemnos))=nan;
         %Everything necessary is masked out beforehand
         for i = 1:LL
-            ifr(i)= sum(sum(recall== i));
+            ifr_sp(i)= sum(sum(recall== i));
             fr(i)= nansum(recognized(:,i));
         end 
         ifr12= sum(sum(recall==12));
-        sp_prop{subj,ses}= ifr./fr;
+        sp_prop{subj,ses}= ifr_sp./fr;
         sp12_prop{subj,ses}= ifr12/fr12;
         end
         
@@ -489,9 +497,12 @@ nanmean(sp_prop)
 close all
 p= plot(nanmean(sp_prop), '-o');
 xlim([1 LL])
-title('Serial Position FFR')
+title('Serial Position Proportion IFR & FFR')
 hold on;
 plot(12,nanmean(sp12_prop), 'r*' )
+xlabel('Serial Position')
+ylabel('Probability')
+legend({'SP Prop All', 'SP Prop 12'})
 
 %% Predictors for Recognition Matrix
 all_recognized= {};
