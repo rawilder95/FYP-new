@@ -35,21 +35,63 @@ my_data$recog[my_data$recog== "FALSE"] <- paste("NO")
 
 ####### Final Recognition #############
 # Model OP and List
-f0list_op <- glmer(data= my_data, formula= recognized ~ op + op2+ list+ list2+ (1|subject), family= "binomial")
-summary(f0list_op)
-r.squaredGLMM(f0list_op)
+list_op <- glmer(data= my_data, formula= recognized ~ op + op2+ list+ list2+ (1|subject), family= "binomial")
+summary(list_op)
+r.squaredGLMM(list_op)
+my_data[, flist_op:= fitted(list_op)]
 
 # Plot OP and List
-ggplot(data= my_data, aes(x= recog, y= fitted(f0list_op)))+ geom_jitter(height= 0, width= 0.4, alpha= 0.2, color= "hot pink")+ ylim(0,1)+ labs(title= "List, OP, & Quadratic Terms", subtitle= "Recognition==0", x=("Was it Recognized?"), y= "Fitted Values")
+ggplot(data= my_data, aes(x= recog, y= flist_op))+ geom_jitter(height= 0, width= 0.4, alpha= 0.2, color= "hot pink")+ ylim(0.6, 1)+ labs(title= "List, OP, & Quadratic Terms", x=("Was it Recognized?"), y= "Fitted Values")+ geom_violin(alpha= 0.5, draw_quantiles = mean(my_data$flist_op), trim= TRUE)
 
-# Model Lag, OP, and List
-f0list_op_lag <- glmer(data= my_data[recognized==0,], formula= recognized ~ op + op2+ list+ list2+ lag+lag2+ (1|subject), family= "binomial")
 
-mod1 <- glmer(data= my_data, recognized~ list+ list2 + op+ op2+ lag+ lag2+ (1|subject), family= "binomial")
+# Model List, OP, Lag 
+list_op_lag <- glmer(data= my_data, formula= recognized ~ op + op2+ list+ list2+ lag+lag2+ (1|subject), family= "binomial")
 
-summary(f0list_op_lag)
-r.squaredGLMM(f0list_op_lag)
+my_data[, flist_op_lag:= fitted(list_op_lag)]
 
-# Plot OP and List
-ggplot(data= my_data, aes(x= recog, y= fitted(mod1)))+ geom_jitter(height= 0, width= 0.4, alpha= 0.2, color= "pink")+ ylim(0,1)+ labs(title= "List, OP, Lag & Quadratic Terms", subtitle= "Recognition==0", x=("Was it Recognized?"), y= "Fitted Values")
 
+
+summary(list_op_lag)
+r.squaredGLMM(list_op_lag)
+
+# Plot List, OP, Lag
+ggplot(data= my_data, aes(x= recog, y=flist_op_lag))+ geom_jitter(height= 0, width= 0.4, alpha= 0.2, color= "pink")+ labs(title= "List, OP, Lag & Quadratic Terms", x=("Was it Recognized?"), y= "Fitted Values")+ geom_violin(alpha= 0.5, draw_quantiles = mean(my_data$flist_op_lag), trim= TRUE)
+
+
+
+#Model List and Lag
+list_lag <- glmer(data= my_data, recognized~ list+ list2+ lag+lag2 + (1|subject), family= "binomial")
+
+
+summary(list_lag)
+r.squaredGLMM(list_lag)
+
+my_data[, flist_lag:= fitted(list_lag)]
+
+#Plot List and Lag
+ggplot(data= my_data, aes(x= recog, y= flist_lag))+ geom_jitter(alpha= 0.2, height= 0, width= 0.4, color= "sky blue")+ geom_violin(alpha= 0.5, draw_quantiles = mean(my_data$flist_lag), trim= TRUE)+ labs(title= "List, Lag, & Quadratic Terms", x= "Was it Recognized?", y= "Fitted Values")
+
+#Model List, OP, and SP
+list_sp_op <- glmer(data= my_data, recognized~ list+list2+ sp+sp2+ op+ op2+ (1|subject), family= "binomial")
+
+summary(list_sp_op)
+r.squaredGLMM(list_sp_op)
+
+my_data[, flist_sp_op:= fitted(list_sp_op)]
+
+
+
+#Plot List, OP, and SP 
+ggplot(data= my_data, aes(x= recog, y= flist_sp_op))+ geom_jitter(alpha= 0.2, height= 0, width= 0.4, color= "navy")+ geom_violin(alpha= 0.5, draw_quantiles = mean(my_data$flist_sp_op), trim= TRUE) + labs(title= "List, SP, OP, and Quadratic Terms", x= "What it Recognized?", y= "Fitted Values")
+
+# Model List, SP, and Lag
+list_sp_lag <- glmer(data= my_data, recognized~ list+ list2+ sp+ sp2+ lag+ lag2+ (1|subject), family= "binomial")
+
+summary(list_sp_lag)
+r.squaredGLMM(list_sp_lag)
+
+my_data[, flist_sp_lag:= fitted(list_sp_lag)]
+
+# Plot List, SP, and Lag
+ggplot(data=my_data, aes(x= recog, y= flist_sp_lag))+ geom_jitter(height= 0, width= 0.4, color= "dark green", alpha= 0.2)+ geom_violin(alpha= 0.5, trim= TRUE, draw_quantiles = mean(my_data$flist_sp_lag))+ labs(title= "List, SP, and Lag", x= "Was it Recognized?", y= "Fitted Values")
+ 

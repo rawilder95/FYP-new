@@ -72,12 +72,12 @@ for subj= 1:length(nsubj)
            
 %            get serial position numerator
             for i = 1:length(recognized(1,:))
-                sp_num(i)= nansum(ifr_recog(:,i));
+                sp_num(i)= sum(nansum(recognized(:,i)));
             end 
             
 %            get lag position numerator
             for i = 1:length(recognized(:,1))
-                list_num(i)= nansum(ifr_recog(i,:));
+                list_num(i)= sum(nansum(recognized));
             end 
 
            sp_prob{subj,ses}= sp_num./sp_denom;
@@ -559,3 +559,57 @@ all_recognized= cell2mat(all_recognized(~cellfun('isempty', all_recognized)));
 
 savefile= 'recognition_mat_7212021.csv';
     dlmwrite(savefile, all_recognized)
+  %% Redoing SP and List Recognition Only
+
+  
+  sp= [];
+  list= [];
+  
+  sp_prop= {};
+  list_prop= {};
+  
+for subj= 1:length(nsubj)
+    for ses= 1:length(nses)
+        if ~isempty(data.recalls(data.subject== nsubj(subj) & data.session== nses(ses),:))
+            ifr_idx= data.subject== nsubj(subj) & data.session== nses(ses);
+            recognized= data.pres.recognized(ifr_idx,:);
+            
+            for i = 1:LL
+                sp(i)= sum(nansum(recognized(:,i)))/(LL- sum(sum(isnan(recognized(:,i)))));
+                list(i)= sum(nansum(recognized(i,:)))/(LL- sum(sum(isnan(recognized(i,:)))));
+            end 
+        end 
+        sp_prop{subj,ses}= sp;
+        list_prop{subj,ses}= list;
+
+        
+        
+        
+        
+        
+    end 
+end 
+sp_prop= cell2mat(sp_prop(~cellfun('isempty', sp_prop)));
+list_prop= cell2mat(list_prop(~cellfun('isempty', list_prop)));
+
+close all;
+subplot(2,1,1)
+p1= plot(mean(sp_prop), 'o-')
+p1.Color= [0 0.5 1]
+ylim([0.75,1])
+xlim([1,LL])
+title('Probability of Recognition (SP)')
+subtitle('Replicated Original Recognition SP')
+xlabel('Serial Position')
+ylabel('Probability')
+
+colormap(pink)
+subplot(2,1,2)
+p2= plot(mean(list_prop), 'o-')
+p2.Color= [0.9 0 0.9]
+ylabel('Probability')
+ylim([0.75, 1])
+title('Probability of Recognition (List)')
+subtitle('Replicated Original Recognition List')
+xlabel('List')
+xlim([1, LL])
