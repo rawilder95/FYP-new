@@ -176,6 +176,10 @@ sp_ifr= {};
 op_ifr= {};
 list_ifr= {};
 lag_ifr= {};
+lag_fr= {};
+op_fr= {};
+list_fr= {};
+sp_fr= {};
 
 
 for subj= 1:length(nsubj)
@@ -183,13 +187,15 @@ for subj= 1:length(nsubj)
 %         Set variables for nonempty sessions
         if ~isempty(data.recalls(data.subject== nsubj(subj) & data.session== nses(ses),:))
            ifr_idx= data.subject== nsubj(subj) & data.session== nses(ses);
-           recall= data.recalls(ifr_idx,:);
+           recall= zeros(LL, 30);
+           recall(:,1:28)= data.recalls(ifr_idx,:);
            
            recognized= data.pres.recognized(ifr_idx,:);
            presitemnos= data.pres_itemnos(ifr_idx,:);
            
            recitemnos= data.rec_itemnos(ifr_idx,:);
 %            Set up OP variable
+           
            op= repmat(1:length(recall(1,:)), [LL,1]);
            op(recall==0)=0;
            
@@ -236,7 +242,7 @@ for subj= 1:length(nsubj)
            lag_denom= zeros(1, 21);
            
            lag_num= zeros(1, 21);
-           for i = 1:21
+           for i = 1:30
                lag_denom(i)= sum(sum(st_lag== i-1));
                lag_num(i)= sum(sum(fr_lag==i-1));
            end 
@@ -261,6 +267,7 @@ for subj= 1:length(nsubj)
            end 
           
            lag_prop{subj,ses}= lag_num./lag_denom;
+          
            op_prop{subj,ses}= op_num./op_denom;
            list_prop{subj,ses}= list_num./list_denom;
            sp_prop{subj,ses}= sp_num./sp_denom;
@@ -300,9 +307,9 @@ lag_fr= cell2mat(lag_fr(~cellfun('isempty', lag_fr)));
 % Denominator= IFR and Tested in FR
 close all;
 plot(nanmean(lag_prop), 'o-')
-xlim([1,21])
-xticks([1:21])
-xticklabels(0:20)
+xlim([1,31])
+xticks([1:31])
+xticklabels(0:30)
 xlabel('Study-Test Lag')
 ylabel('Probability')
 title('Probability of Final Recognition ƒ Study-Test Lag')
@@ -351,9 +358,9 @@ ylim([0.75, 1])
 close all;
 subplot(2,1,1)
 histogram(lag_ifr)
-xlim([1,21])
-xticks([1:21])
-xticklabels(0:20)
+xlim([1,31])
+xticks([1:31])
+xticklabels(0:30)
 xlabel('Study-Test Lag')
 ylabel('Frequency')
 title('Histogram of IFR Study-Test Lag Values')
@@ -362,9 +369,9 @@ ylim([0 7000])
 
 subplot(2,1,2)
 histogram(lag_fr)
-xlim([1,21])
-xticks([1:21])
-xticklabels(0:20)
+xlim([1,31])
+xticks([1:31])
+xticklabels(0:30)
 xlabel('Study-Test Lag')
 ylabel('Frequency')
 title('Histogram of IFR and Recognized Study-Test Lag Values')

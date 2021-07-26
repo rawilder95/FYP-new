@@ -42,6 +42,7 @@ my_data[, flist_op:= fitted(list_op)]
 
 # Plot OP and List
 ggplot(data= my_data, aes(x= recog, y= flist_op))+ geom_jitter(height= 0, width= 0.4, alpha= 0.2, color= "hot pink")+ ylim(0.6, 1)+ labs(title= "List, OP, & Quadratic Terms", x=("Was it Recognized?"), y= "Fitted Values")+ geom_violin(alpha= 0.5, draw_quantiles = mean(my_data$flist_op), trim= TRUE)
+ ggsave("recog_list_op", device= "png", dpi= 300)
 
 
 # Model List, OP, Lag 
@@ -56,6 +57,7 @@ r.squaredGLMM(list_op_lag)
 
 # Plot List, OP, Lag
 ggplot(data= my_data, aes(x= recog, y=flist_op_lag))+ geom_jitter(height= 0, width= 0.4, alpha= 0.2, color= "pink")+ labs(title= "List, OP, Lag & Quadratic Terms", x=("Was it Recognized?"), y= "Fitted Values")+ geom_violin(alpha= 0.5, draw_quantiles = mean(my_data$flist_op_lag), trim= TRUE)
+ ggsave("recog_list_op_lag", device= "png", dpi= 300)
 
 
 
@@ -70,6 +72,7 @@ my_data[, flist_lag:= fitted(list_lag)]
 
 #Plot List and Lag
 ggplot(data= my_data, aes(x= recog, y= flist_lag))+ geom_jitter(alpha= 0.2, height= 0, width= 0.4, color= "sky blue")+ geom_violin(alpha= 0.5, draw_quantiles = mean(my_data$flist_lag), trim= TRUE)+ labs(title= "List, Lag, & Quadratic Terms", x= "Was it Recognized?", y= "Fitted Values")
+ ggsave("recog_list_lag", device= "png", dpi= 300)
 
 #Model List, OP, and SP
 list_sp_op <- glmer(data= my_data, recognized~ list+list2+ sp+sp2+ op+ op2+ (1|subject), family= "binomial")
@@ -83,6 +86,7 @@ my_data[, flist_sp_op:= fitted(list_sp_op)]
 
 #Plot List, OP, and SP 
 ggplot(data= my_data, aes(x= recog, y= flist_sp_op))+ geom_jitter(alpha= 0.2, height= 0, width= 0.4, color= "navy")+ geom_violin(alpha= 0.5, draw_quantiles = mean(my_data$flist_sp_op), trim= TRUE) + labs(title= "List, SP, OP, and Quadratic Terms", x= "What it Recognized?", y= "Fitted Values")
+ ggsave("recog_list_op_sp", device= "png", dpi= 300)
 
 # Model List, SP, and Lag
 list_sp_lag <- glmer(data= my_data, recognized~ list+ list2+ sp+ sp2+ lag+ lag2+ (1|subject), family= "binomial")
@@ -94,4 +98,4 @@ my_data[, flist_sp_lag:= fitted(list_sp_lag)]
 
 # Plot List, SP, and Lag
 ggplot(data=my_data, aes(x= recog, y= flist_sp_lag))+ geom_jitter(height= 0, width= 0.4, color= "dark green", alpha= 0.2)+ geom_violin(alpha= 0.5, trim= TRUE, draw_quantiles = mean(my_data$flist_sp_lag))+ labs(title= "List, SP, and Lag", x= "Was it Recognized?", y= "Fitted Values")
- 
+ ggsave("recog_list_sp_lag", device= "png", dpi= 300)

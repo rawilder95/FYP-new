@@ -183,6 +183,7 @@ for subj= 1:length(nsubj)
 %         Set variables for nonempty sessions
         if ~isempty(data.recalls(data.subject== nsubj(subj) & data.session== nses(ses),:))
            ifr_idx= data.subject== nsubj(subj) & data.session== nses(ses);
+           recall= zeros(LL, 30);
            recall= data.recalls(ifr_idx,:);
            
            recognized= data.pres.recognized(ifr_idx,:);
@@ -190,6 +191,7 @@ for subj= 1:length(nsubj)
            
            recitemnos= data.rec_itemnos(ifr_idx,:);
 %            Set up OP variable
+           
            op= repmat(1:length(recall(1,:)), [LL,1]);
            op(recall==0)=0;
            
@@ -261,6 +263,7 @@ for subj= 1:length(nsubj)
            end 
           
            lag_prop{subj,ses}= lag_num./lag_denom;
+          
            op_prop{subj,ses}= op_num./op_denom;
            list_prop{subj,ses}= list_num./list_denom;
            sp_prop{subj,ses}= sp_num./sp_denom;
@@ -362,9 +365,9 @@ ylim([0 7000])
 
 subplot(2,1,2)
 histogram(lag_fr)
-xlim([1,21])
-xticks([1:21])
-xticklabels(0:20)
+xlim([1,31])
+xticks([1:31])
+xticklabels(0:30)
 xlabel('Study-Test Lag')
 ylabel('Frequency')
 title('Histogram of IFR and Recognized Study-Test Lag Values')
@@ -559,7 +562,7 @@ all_recognized= cell2mat(all_recognized(~cellfun('isempty', all_recognized)));
 
 savefile= 'recognition_mat_7212021.csv';
     dlmwrite(savefile, all_recognized)
-  %% 
+  %% Redoing SP and List Recognition Only
 
   
   sp= [];
@@ -594,13 +597,22 @@ list_prop= cell2mat(list_prop(~cellfun('isempty', list_prop)));
 
 close all;
 subplot(2,1,1)
-plot(mean(sp_prop), 'o-')
+p1= plot(mean(sp_prop), 'o-')
+p1.Color= [0 0.5 1]
 ylim([0.75,1])
 xlim([1,LL])
 title('Probability of Recognition (SP)')
 subtitle('Replicated Original Recognition SP')
+xlabel('Serial Position')
+ylabel('Probability')
 
+colormap(pink)
 subplot(2,1,2)
-plot(mean(list_prop), 'o-')
+p2= plot(mean(list_prop), 'o-')
+p2.Color= [0.9 0 0.9]
+ylabel('Probability')
 ylim([0.75, 1])
-xlim([
+title('Probability of Recognition (List)')
+subtitle('Replicated Original Recognition List')
+xlabel('List')
+xlim([1, LL])
