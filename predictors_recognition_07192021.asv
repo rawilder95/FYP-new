@@ -176,6 +176,11 @@ sp_ifr= {};
 op_ifr= {};
 list_ifr= {};
 lag_ifr= {};
+lag_fr= {};
+op_fr= {};
+list_fr= {};
+sp_fr= {};
+sp_ifr_fr= {};
 
 
 for subj= 1:length(nsubj)
@@ -184,7 +189,7 @@ for subj= 1:length(nsubj)
         if ~isempty(data.recalls(data.subject== nsubj(subj) & data.session== nses(ses),:))
            ifr_idx= data.subject== nsubj(subj) & data.session== nses(ses);
            recall= zeros(LL, 30);
-           recall= data.recalls(ifr_idx,:);
+           recall(:,1:28)= data.recalls(ifr_idx,:);
            
            recognized= data.pres.recognized(ifr_idx,:);
            presitemnos= data.pres_itemnos(ifr_idx,:);
@@ -238,7 +243,7 @@ for subj= 1:length(nsubj)
            lag_denom= zeros(1, 21);
            
            lag_num= zeros(1, 21);
-           for i = 1:21
+           for i = 1:30
                lag_denom(i)= sum(sum(st_lag== i-1));
                lag_num(i)= sum(sum(fr_lag==i-1));
            end 
@@ -262,8 +267,10 @@ for subj= 1:length(nsubj)
                sp_num(i)= sum(sum(fr_sp==i));
            end 
           
+           for i = 1:LL
+               
+           end 
            lag_prop{subj,ses}= lag_num./lag_denom;
-          
            op_prop{subj,ses}= op_num./op_denom;
            list_prop{subj,ses}= list_num./list_denom;
            sp_prop{subj,ses}= sp_num./sp_denom;
@@ -275,6 +282,7 @@ for subj= 1:length(nsubj)
            op_fr{subj, ses}= fr_op;
            list_fr{subj,ses}= fr_list;
            sp_fr{subj,ses}= fr_sp;
+           
            
         end 
     end 
@@ -294,18 +302,16 @@ list_fr= cell2mat(list_fr(~cellfun('isempty', list_fr)));
 lag_fr= cell2mat(lag_fr(~cellfun('isempty', lag_fr)));
 
 
-%Although the 0.8-0.9 probabilities seem a bit high, I've checked multiple
-%subjects by hand (e.g. subj 172 ses 6, there were only 6 IFR items that
-%were not recognized), so this makes sense.  
+ 
 
 %% Plot Study-Test Lag 
 % Numerator= IFR and Final Recognized
 % Denominator= IFR and Tested in FR
 close all;
 plot(nanmean(lag_prop), 'o-')
-xlim([1,21])
-xticks([1:21])
-xticklabels(0:20)
+xlim([1,31])
+xticks([1:31])
+xticklabels(0:30)
 xlabel('Study-Test Lag')
 ylabel('Probability')
 title('Probability of Final Recognition ƒ Study-Test Lag')
@@ -341,22 +347,24 @@ ylim([0.75,1])
 % Numerator= IFR and Final Recognized
 % Denominator= IFR and Tested in FR
 close all;
-plot(nanmean(sp_prop), 'o-')
-xlim([1,LL])
-xticks([1:LL])
-xticklabels(1:LL)
-xlabel('Serial Position')
-ylabel('Probability')
-title('Probability of Final Recognition ƒ Serial Position')
-ylim([0.75, 1])
+k= sp_ifr./sp_fr;
+plot(k)
+% plot(nanmean(sp_prop), 'o-')
+% xlim([1,LL])
+% xticks([1:LL])
+% xticklabels(1:LL)
+% xlabel('Serial Position')
+% ylabel('Probability')
+% title('Probability of Final Recognition ƒ Serial Position')
+% ylim([0.75, 1])
 %% Lag IFR Histogram
 
 close all;
 subplot(2,1,1)
 histogram(lag_ifr)
-xlim([1,21])
-xticks([1:21])
-xticklabels(0:20)
+xlim([1,31])
+xticks([1:31])
+xticklabels(0:30)
 xlabel('Study-Test Lag')
 ylabel('Frequency')
 title('Histogram of IFR Study-Test Lag Values')
@@ -616,3 +624,36 @@ title('Probability of Recognition (List)')
 subtitle('Replicated Original Recognition List')
 xlabel('List')
 xlim([1, LL])
+%%
+
+sp2= [];
+sp_ifr_fr
+for subj= 1:length(nsubj)
+    for ses= 1:length(nses)
+        
+        ifr_idx= data.subject== nsubj(subj) & data.session== nses(ses);
+        if sum(ifr_idx)~=0
+        recall= data.recalls(ifr_idx,:);
+        recognized= data.pres.recognized(ifr_idx,:);
+        presitemnos= data.pres_itemnos(ifr_idx,:);
+        recitemnos= data.rec_itemnos(ifr_idx,:);
+        
+        
+        find_nan= presitemnos(isnan(recognized));
+        recall(ismember(recitemnos, find_nan))= nan;
+        was_recalled= ismember(presitemnos,recitemnos);
+        k= recognized;
+        recognized(~was_recalled)= 0;
+        
+        
+        for i = 1:LL
+            sp1(i)= sum(sum(recall==i));
+            sp2(i)= nansum(recognized(:,i));
+        end
+        sp_ifr_fr{subj,ses}= sp2./sp1;
+        end
+        
+    end 
+end 
+
+sp_ifr_fr

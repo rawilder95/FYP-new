@@ -180,6 +180,7 @@ lag_fr= {};
 op_fr= {};
 list_fr= {};
 sp_fr= {};
+sp_ifr_fr= {};
 
 
 for subj= 1:length(nsubj)
@@ -266,10 +267,13 @@ for subj= 1:length(nsubj)
                sp_num(i)= sum(sum(fr_sp==i));
            end 
           
+           for i = 1:LL
+               
+           end 
            lag_prop{subj,ses}= lag_num./lag_denom;
-          
            op_prop{subj,ses}= op_num./op_denom;
            list_prop{subj,ses}= list_num./list_denom;
+           sp_ifr_fr{subj,ses}= sp_num./sp_denom;
            sp_prop{subj,ses}= sp_num./sp_denom;
            sp_ifr{subj,ses}= recall;
            op_ifr{subj,ses}= op;
@@ -279,6 +283,7 @@ for subj= 1:length(nsubj)
            op_fr{subj, ses}= fr_op;
            list_fr{subj,ses}= fr_list;
            sp_fr{subj,ses}= fr_sp;
+           
            
         end 
     end 
@@ -296,11 +301,10 @@ sp_fr= cell2mat(sp_fr(~cellfun('isempty', sp_fr)));
 op_fr= cell2mat(op_fr(~cellfun('isempty', op_fr)));
 list_fr= cell2mat(list_fr(~cellfun('isempty', list_fr)));
 lag_fr= cell2mat(lag_fr(~cellfun('isempty', lag_fr)));
+sp_ifr_fr= cell2mat(sp_ifr_fr(~cellfun('isempty', sp_ifr_fr)));
 
 
-%Although the 0.8-0.9 probabilities seem a bit high, I've checked multiple
-%subjects by hand (e.g. subj 172 ses 6, there were only 6 IFR items that
-%were not recognized), so this makes sense.  
+ 
 
 %% Plot Study-Test Lag 
 % Numerator= IFR and Final Recognized
@@ -345,7 +349,8 @@ ylim([0.75,1])
 % Numerator= IFR and Final Recognized
 % Denominator= IFR and Tested in FR
 close all;
-plot(nanmean(sp_prop), 'o-')
+
+plot(nanmean(sp_ifr_fr), 'o-')
 xlim([1,LL])
 xticks([1:LL])
 xticklabels(1:LL)
@@ -620,3 +625,36 @@ title('Probability of Recognition (List)')
 subtitle('Replicated Original Recognition List')
 xlabel('List')
 xlim([1, LL])
+%%
+
+sp2= [];
+sp_ifr_fr= {};
+for subj= 1:length(nsubj)
+    for ses= 1:length(nses)
+        
+        ifr_idx= data.subject== nsubj(subj) & data.session== nses(ses);
+        if sum(ifr_idx)~=0
+        recall= data.recalls(ifr_idx,:);
+        recognized= data.pres.recognized(ifr_idx,:);
+        presitemnos= data.pres_itemnos(ifr_idx,:);
+        recitemnos= data.rec_itemnos(ifr_idx,:);
+        
+        
+        find_nan= presitemnos(isnan(recognized));
+        recall(ismember(recitemnos, find_nan))= nan;
+        was_recalled= ismember(presitemnos,recitemnos);
+        k= recognized;
+        recognized(~was_recalled)= nan;
+        
+        
+        for i = 1:LL
+            sp1(i)= sum(sum(recall==i));
+            sp2(i)= nansum(recognized(:,i));
+        end
+        sp_ifr_fr{subj,ses}= sp2./sp1;
+        end
+        
+    end 
+end 
+
+sp_ifr_fr= cell2mat(sp_ifr_fr(~cellfun('isempty', sp_ifr_fr)));
