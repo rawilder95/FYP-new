@@ -118,26 +118,48 @@ my_data[, yy_list_sp_lag:= 0]
  my_data[, res_list_sp_op:= residuals(list_sp_lag, type= "response")]
 
 is_it_listop<- residuals(list_op, type= "response")>0.5 & residuals(list_op, type= "response")< -0.5
-ggplot(data= my_data)+ geom_histogram(aes(x= res_list_sp_lag, fill= is_it_listop), bins= 100)
 
+# Histogram List SP Lag
+is_it_listsplag= residuals(list_lag, type= "response")< 0.5 & residuals(list_op, type= "response")> -0.5
+is_it_listsplag[is_it_listsplag== FALSE] <- print(paste("Exceeds Range"))
+is_it_listsplag[is_it_listsplag== TRUE] <- print(paste("Target Range"))
+ggplot(data= my_data)+ geom_histogram(aes(x= res_list_sp_lag, fill= is_it_listsplag), bins= 100)+ labs(fill= "Range of Values", x= "List SP Lag")
+ggsave("hist_residuals_list_sp_lag", device= "png", dpi= 300)
 
+# Histogram List SP OP
+is_it_listspop= residuals(list_lag, type= "response")< 0.5 & residuals(list_op, type= "response")> -0.5
+is_it_listspop[is_it_listspop== FALSE] <- print(paste("Exceeds Range"))
+is_it_listspop[is_it_listspop== TRUE] <- print(paste("Target Range"))
+ggplot(data= my_data)+ geom_histogram(aes(x= res_list_sp_lag, fill= is_it_listspop), bins= 100)+ labs(fill= "Range of Values", x= "List SP OP")
+ggsave("hist_residuals_list_sp_op", device= "png", dpi= 300)
 
 
 
 
 # Histogram List OP
-is_it_listop= residuals(list_op, type= "response")< 0.5 & residuals(list_op, type= "response")> -0.5
+is_it_listop= residuals(list_lag, type= "response")< 0.5 & residuals(list_op, type= "response")> -0.5
 is_it_listop[is_it_listop== FALSE] <- print(paste("Exceeds Range"))
 is_it_listop[is_it_listop== TRUE] <- print(paste("Target Range"))
-ggplot(data= my_data)+ geom_histogram(aes(x= res_list_op, fill= is_it_listop), bins= 100)+ labs(fill= "Range of values")
+ggplot(data= my_data)+ geom_histogram(aes(x= res_list_op, fill= is_it_listop), bins= 100)+ labs(fill= "Range of values", x= "List OP")
 # + xlim(min(my_data$res_list_op), max(my_data$res_list_op))
+ggsave("hist_residuals_list_op", device= "png", dpi= 300)
 
 
-ggplot(data= my_data)+ geom_histogram(aes(x= res_list_lag, fill= recog), bins= 75)
+# Histogram List Lag
+is_it_listlag= residuals(list_lag, type= "response")< 0.5 & residuals(list_lag, type= "response")> -0.5
+is_it_listlag[is_it_listlag== FALSE] <- print(paste("Exceeds Range"))
+is_it_listlag[is_it_listlag== TRUE] <- print(paste("Target Range"))
+ggplot(data= my_data)+ geom_histogram(aes(x= res_list_lag, fill= is_it_listlag), bins= 75)+ labs(fill= "Range of values", x= "List Lag")
+ggsave("hist_residuals_list_lag", device= "png", dpi= 300)
 
-ggplot(data= my_data)+ geom_histogram(aes(x= res_list_op_lag, fill= recog), bins= 75)
 
-ggplot(data= my_data)+ geom_histogram(aes(x= res_list_op, fill= is_it_listop), bins= 75) 
+# Histogram List OP Lag
+is_it_listoplag= residuals(list_op_lag, type= "response")< 0.5 & residuals(list_op_lag, type= "response")> -0.5
+is_it_listoplag[is_it_listoplag== FALSE] <- print(paste("Exceeds Range"))
+is_it_listoplag[is_it_listoplag== TRUE] <- print(paste("Target Range"))
+ggplot(data= my_data)+ geom_histogram(aes(x= res_list_op_lag, fill= is_it_listoplag), bins= 75)+ labs(fill= "Range of values", x= "List Op Lag")
+ggsave("hist_residuals_list_op_lag", device= "png", dpi= 300)
+
 
 
 
