@@ -29,7 +29,7 @@ my_data <- read.csv(file= "newdata.csv")
 
 my_data <- data.table(my_data)
 
-data_names <- c("subject", "session", "list", "rec_itemnos", "rt", "sp", "op", "lag", "ffr")
+data_names <- c("subject", "session", "list", "rec_itemnos", "rt", "sp", "op", "lag", "lag_in", "lag_out", "ffr")
 colnames(my_data) <- data_names
 
 

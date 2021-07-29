@@ -99,3 +99,51 @@ my_data[, flist_sp_lag:= fitted(list_sp_lag)]
 # Plot List, SP, and Lag
 ggplot(data=my_data, aes(x= recog, y= flist_sp_lag))+ geom_jitter(height= 0, width= 0.4, color= "dark green", alpha= 0.2)+ geom_violin(alpha= 0.5, trim= TRUE, draw_quantiles = mean(my_data$flist_sp_lag))+ labs(title= "List, SP, and Lag", x= "Was it Recognized?", y= "Fitted Values")
  ggsave("recog_list_sp_lag", device= "png", dpi= 300)
+ 
+ my_data[, res_list_sp_lag:= residuals(list_sp_lag, type= "response")]
+ 
+my_data[, yy_list_sp_lag:= 0]
+
+
+
+
+# ggplot()+ geom_jitter(aes(x= 1:length(is_it_listop), y= is_it_listop))
+
+
+
+ my_data[, res_list_op:= residuals(list_op, type= "response")]
+  my_data[, res_list_lag:= residuals(list_lag, type= "response")]
+  my_data[, res_list_op_lag:= residuals(list_op_lag, type= "response")]
+  
+ my_data[, res_list_sp_op:= residuals(list_sp_lag, type= "response")]
+
+is_it_listop<- residuals(list_op, type= "response")>0.5 & residuals(list_op, type= "response")< -0.5
+ggplot(data= my_data)+ geom_histogram(aes(x= res_list_sp_lag, fill= is_it_listop), bins= 100)
+
+
+
+
+
+
+# Histogram List OP
+is_it_listop= residuals(list_op, type= "response")< 0.5 & residuals(list_op, type= "response")> -0.5
+is_it_listop[is_it_listop== FALSE] <- print(paste("Exceeds Range"))
+is_it_listop[is_it_listop== TRUE] <- print(paste("Target Range"))
+ggplot(data= my_data)+ geom_histogram(aes(x= res_list_op, fill= is_it_listop), bins= 100)+ labs(fill= "Range of values")
+# + xlim(min(my_data$res_list_op), max(my_data$res_list_op))
+
+
+ggplot(data= my_data)+ geom_histogram(aes(x= res_list_lag, fill= recog), bins= 75)
+
+ggplot(data= my_data)+ geom_histogram(aes(x= res_list_op_lag, fill= recog), bins= 75)
+
+ggplot(data= my_data)+ geom_histogram(aes(x= res_list_op, fill= is_it_listop), bins= 75) 
+
+
+
+
+
+# is_it_listop= residuals(mod1, type= "response")< 0.5 & residuals(mod1, type= "response")> -0.5
+# is_it_listop[is_it_listop== "FALSE"] <- paste ("Exceeds Threshold")
+# is_it_listop[is_it_listop== "FALSE"] <- paste ("Target Range")
+ 
