@@ -135,6 +135,12 @@ ggsave("hist_residuals_list_sp_op", device= "png", dpi= 300)
 
 
 
+is_it = abs(residuals(list_op))>0.5
+
+ggplot()+ geom_histogram(aes(x= my_data$residuals(list_op)), fill= is_it)
+
+
+
 
 # Histogram List OP
 is_it_listop= residuals(list_lag, type= "response")< 0.5 & residuals(list_op, type= "response")> -0.5
@@ -163,6 +169,10 @@ ggsave("hist_residuals_list_op_lag", device= "png", dpi= 300)
 
 
 
+
+mod1 <- glmer(data= my_data, recognized~ list+op+ (1|subject), family= "binomial")
+
+ggplot(data= my_data, aes(x= recog, y= residuals(mod1)))+ geom_jitter(data= my_data, aes(x= recog, y= residuals(mod1)), alpha = 0.2)+ geom_violin(alpha= 0.75, draw_quantiles = 0.5, trim= FALSE)+ labs(title= "List & OP no Quadratic Terms", subtitle= "BIC= 22901.2, R^2= 0.167")
 
 
 # is_it_listop= residuals(mod1, type= "response")< 0.5 & residuals(mod1, type= "response")> -0.5

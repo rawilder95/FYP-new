@@ -642,19 +642,96 @@ for subj= 1:length(nsubj)
         
         find_nan= presitemnos(isnan(recognized));
         recall(ismember(recitemnos, find_nan))= nan;
-        was_recalled= ismember(presitemnos,recitemnos);
+        recitemnos(isnan(recall))=nan;
+        was_recalled= ismember(presitemnos(~isnan(recognized)),recitemnos);
         k= recognized;
-        recognized(~was_recalled)= nan;
+        ifr_fr= recognized;
+        ifr_fr(~was_recalled)= nan;
         
         
+        
+        sp1= [];
+        sp2= [];
         for i = 1:LL
             sp1(i)= sum(sum(recall==i));
-            sp2(i)= nansum(recognized(:,i));
+            sp2(i)= nansum(ifr_fr(:,i));
         end
         sp_ifr_fr{subj,ses}= sp2./sp1;
+        
         end
         
+        
+        
+       
     end 
+
+        
 end 
 
 sp_ifr_fr= cell2mat(sp_ifr_fr(~cellfun('isempty', sp_ifr_fr)));
+
+close all;
+plot(nanmean(sp_ifr_fr))
+
+
+%%
+%%
+
+sp2= [];
+sp_ifr_fr= {};
+for subj= 1:length(nsubj)
+    for ses= 1:length(nses)
+        
+        ifr_idx= data.subject== nsubj(subj) & data.session== nses(ses);
+        if sum(ifr_idx)~=0
+        recall= data.recalls(ifr_idx,:);
+        recognized= data.pres.recognized(ifr_idx,:);
+        presitemnos= data.pres_itemnos(ifr_idx,:);
+        recitemnos= data.rec_itemnos(ifr_idx,:);
+        
+        
+%         This should be masking out correctly but the count is still off
+% e.g subject 63 session 4
+        find_nan= presitemnos(isnan(recognized)); %find the not tested in recognition items
+        recall(ismember(recitemnos, find_nan))= nan; %find the itemnos that match find_nan and set them to NaN in recall
+        
+        was_recalled= ismember(presitemnos(~isnan(recognized) & recognized>0),recitemnos); %Of tested recognition items, which were recalled during IFR
+        
+        ifr_fr= recognized;
+        ifr_fr(~ismember(presitemnos, recitemnos))=0;
+        for i = 1:LL
+            sp1(i)= sum(sum(recall==i)); % how many IFR items presented in SP(i)?
+            sp2(i)= nansum(ifr_fr(:,i)); %SP= col for FR, how many IFR and FR items recognized in SP(i)?
+        end 
+%         k= recognized;
+%         ifr_fr= recognized;
+%         
+%         
+%         for i = 1:LL
+%             sp1(i)= sum(sum(recall== i));
+%             k= recitemnos(recall== i);
+%             m= ismember(presitemnos,k);
+%             sp2(i)= sum(sum(m));
+%         end 
+%         ifr_fr(~was_recalled)= nan;
+%         for i = 1:LL
+%             sp1(i)= sum(sum(recall== i ))
+%             sp2(i)= sum(nansum(ifr_fr(:,i)))
+%         end 
+        
+        sp_ifr_fr{subj,ses}= sp2./sp1;
+        if any(any(isinf(sp_ifr_fr{subj,ses})))
+            sp_ifr_fr{subj,ses}(isinf(sp_ifr_fr{subj,ses}))=nan;
+        end 
+            
+        end 
+       
+    end 
+
+        
+end 
+
+sp_ifr_fr= cell2mat(sp_ifr_fr(~cellfun('isempty', sp_ifr_fr)));
+
+close all;
+plot(nanmean(sp_ifr_fr))
