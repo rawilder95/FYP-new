@@ -675,7 +675,7 @@ plot(nanmean(sp_ifr_fr))
 
 
 %%
-%%
+%% Going through and trying to find where code breaks
 
 sp2= [];
 sp_ifr_fr= {};
@@ -699,29 +699,24 @@ for subj= 1:length(nsubj)
         
         ifr_fr= recognized;
         ifr_fr(~ismember(presitemnos, recitemnos))=0;
+%         Just tried it out, does not work.
+%         ifr_fr= ismember(recitemnos, presitemnos(~isnan(recognized))) 
         for i = 1:LL
-            sp1(i)= sum(sum(recall==i)); % how many IFR items presented in SP(i)?
+            sp1(i)= sum(sum(was_it_recog(:,1))); % how many IFR items presented in SP(i)?
             sp2(i)= nansum(ifr_fr(:,i)); %SP= col for FR, how many IFR and FR items recognized in SP(i)?
         end 
-%         k= recognized;
-%         ifr_fr= recognized;
-%         
-%         
-%         for i = 1:LL
-%             sp1(i)= sum(sum(recall== i));
-%             k= recitemnos(recall== i);
-%             m= ismember(presitemnos,k);
-%             sp2(i)= sum(sum(m));
-%         end 
-%         ifr_fr(~was_recalled)= nan;
-%         for i = 1:LL
-%             sp1(i)= sum(sum(recall== i ))
-%             sp2(i)= sum(nansum(ifr_fr(:,i)))
-%         end 
+        if any(any(isinf(sp2./sp1)))
+            keyboard
+        end 
         
+        was_it_recog= ismember(recitemnos,presitemnos)
+
+%         Subject 84, Session 7, List 11, SP 7 is not getting masked out
+%         for some reason in final recognition.  
         sp_ifr_fr{subj,ses}= sp2./sp1;
         if any(any(isinf(sp_ifr_fr{subj,ses})))
-            sp_ifr_fr{subj,ses}(isinf(sp_ifr_fr{subj,ses}))=nan;
+            keyboard
+%             sp_ifr_fr{subj,ses}(isinf(sp_ifr_fr{subj,ses}))=nan;
         end 
             
         end 
@@ -735,3 +730,22 @@ sp_ifr_fr= cell2mat(sp_ifr_fr(~cellfun('isempty', sp_ifr_fr)));
 
 close all;
 plot(nanmean(sp_ifr_fr))
+
+%% Test run on subject/session where INFs occurred
+
+% Recall has a different number of 0's than recitemnos
+
+for subj= 16
+    for ses= 6
+        ifr_idx= data.subject== nsubj(subj) & data.session== nses(ses);
+        recall= data.recalls(ifr_idx,:);
+        recognized= data.pres.recognized(ifr_idx,:);
+        presitemnos= data.pres_itemnos(ifr_idx,:);
+        recitemnos= data.rec_itemnos(ifr_idx,:);
+%         Mask out all of the items not tested in FR
+        pres_nan= presitemnos(isnan(recognized));
+        ismember(recitemnos, pres_nan)
+        
+        
+    end 
+end 
