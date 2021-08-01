@@ -571,181 +571,281 @@ all_recognized= cell2mat(all_recognized(~cellfun('isempty', all_recognized)));
 
 savefile= 'recognition_mat_7212021.csv';
     dlmwrite(savefile, all_recognized)
-  %% Redoing SP and List Recognition Only
+%% Past Attempts. Ignore.
+%I'm leaving this hear temporarily, just in case. 
 
-  
-  sp= [];
-  list= [];
-  
-  sp_prop= {};
-  list_prop= {};
-  
+
+% %   % Redoing SP and List Recognition Only
+% % 
+% %   
+% %   sp= [];
+% %   list= [];
+% %   
+% %   sp_prop= {};
+% %   list_prop= {};
+% %   
+% % for subj= 1:length(nsubj)
+% %     for ses= 1:length(nses)
+% %         if ~isempty(data.recalls(data.subject== nsubj(subj) & data.session== nses(ses),:))
+% %             ifr_idx= data.subject== nsubj(subj) & data.session== nses(ses);
+% %             recognized= data.pres.recognized(ifr_idx,:);
+% %             
+% %             for i = 1:LL
+% %                 sp(i)= sum(nansum(recognized(:,i)))/(LL- sum(sum(isnan(recognized(:,i)))));
+% %                 list(i)= sum(nansum(recognized(i,:)))/(LL- sum(sum(isnan(recognized(i,:)))));
+% %             end 
+% %         end 
+% %         sp_prop{subj,ses}= sp;
+% %         list_prop{subj,ses}= list;
+% % 
+% %         
+% %         
+% %         
+% %         
+% %         
+% %     end 
+% % end 
+% % sp_prop= cell2mat(sp_prop(~cellfun('isempty', sp_prop)));
+% % list_prop= cell2mat(list_prop(~cellfun('isempty', list_prop)));
+% % 
+% % close all;
+% % subplot(2,1,1)
+% % p1= plot(mean(sp_prop), 'o-')
+% % p1.Color= [0 0.5 1]
+% % ylim([0.75,1])
+% % xlim([1,LL])
+% % title('Probability of Recognition (SP)')
+% % subtitle('Replicated Original Recognition SP')
+% % xlabel('Serial Position')
+% % ylabel('Probability')
+% % 
+% % colormap(pink)
+% % subplot(2,1,2)
+% % p2= plot(mean(list_prop), 'o-')
+% % p2.Color= [0.9 0 0.9]
+% % ylabel('Probability')
+% % ylim([0.75, 1])
+% % title('Probability of Recognition (List)')
+% % subtitle('Replicated Original Recognition List')
+% % xlabel('List')
+% % xlim([1, LL])
+% % %
+% % 
+% % sp2= [];
+% % sp_ifr_fr= {};
+% % for subj= 1:length(nsubj)
+% %     for ses= 1:length(nses)
+% %         
+% %         ifr_idx= data.subject== nsubj(subj) & data.session== nses(ses);
+% %         if sum(ifr_idx)~=0
+% %         recall= data.recalls(ifr_idx,:);
+% %         recognized= data.pres.recognized(ifr_idx,:);
+% %         presitemnos= data.pres_itemnos(ifr_idx,:);
+% %         recitemnos= data.rec_itemnos(ifr_idx,:);
+% %         
+% %         
+% %         find_nan= presitemnos(isnan(recognized));
+% %         recall(ismember(recitemnos, find_nan))= nan;
+% %         recitemnos(isnan(recall))=nan;
+% %         was_recalled= ismember(presitemnos(~isnan(recognized)),recitemnos);
+% %         
+% %         ifr_fr= recognized;
+% %         ifr_fr(~was_recalled)= 0;
+% %         
+% %         
+% %         
+% %         sp1= [];
+% %         sp2= [];
+% %         for i = 1:LL
+% %             sp1(i)= sum(sum(recall==i));
+% %             sp2(i)= nansum(ifr_fr(:,i));
+% %         end
+% %         sp_ifr_fr{subj,ses}= sp2./sp1;
+% %         
+% %         end
+% %         
+% %         
+% %         
+% %        
+% %     end 
+% % 
+% %         
+% % end 
+% % 
+% % sp_ifr_fr= cell2mat(sp_ifr_fr(~cellfun('isempty', sp_ifr_fr)));
+% % 
+% % close all;
+% % plot(nanmean(sp_ifr_fr))
+% % 
+% % 
+% % %
+% % % Going through and trying to find where code breaks
+% % 
+% % sp2= [];
+% % sp_ifr_fr= {};
+% % for subj= 1:length(nsubj)
+% %     for ses= 1:length(nses)
+% %         
+% %         ifr_idx= data.subject== nsubj(subj) & data.session== nses(ses);
+% %         if sum(ifr_idx)~=0
+% %         recall= data.recalls(ifr_idx,:);
+% %         recognized= data.pres.recognized(ifr_idx,:);
+% %         presitemnos= data.pres_itemnos(ifr_idx,:);
+% %         recitemnos= data.rec_itemnos(ifr_idx,:);
+% %         
+% %         
+% %         This should be masking out correctly but the count is still off
+% % e.g subject 63 session 4
+% %         find_nan= presitemnos(isnan(recognized)); %find the not tested in recognition items
+% %         recall(ismember(recitemnos, find_nan))= nan; %find the itemnos that match find_nan and set them to NaN in recall
+% %         
+% %         was_recalled= ismember(presitemnos(~isnan(recognized) & recognized>0),recitemnos); %Of tested recognition items, which were recalled during IFR
+% %         
+% %         ifr_fr= recognized;
+% %         ifr_fr(~ismember(presitemnos, recitemnos))=0;
+% %         Just tried it out, does not work.
+% %         ifr_fr= ismember(recitemnos, presitemnos(~isnan(recognized))) 
+% %         for i = 1:LL
+% %             sp1(i)= sum(sum(was_it_recog(:,1))); % how many IFR items presented in SP(i)?
+% %             sp2(i)= nansum(ifr_fr(:,i)); %SP= col for FR, how many IFR and FR items recognized in SP(i)?
+% %         end 
+% %         if any(any(isinf(sp2./sp1)))
+% %             keyboard
+% %         end 
+% %         
+% %         was_it_recog= ismember(recitemnos,presitemnos)
+% % 
+% %         Subject 84, Session 7, List 11, SP 7 is not getting masked out
+% %         for some reason in final recognition.  
+% %         sp_ifr_fr{subj,ses}= sp2./sp1;
+% %         if any(any(isinf(sp_ifr_fr{subj,ses})))
+% %             keyboard
+% %             sp_ifr_fr{subj,ses}(isinf(sp_ifr_fr{subj,ses}))=nan;
+% %         end 
+% %             
+% %         end 
+% %        
+% %     end 
+% % 
+% %         
+% % end 
+% % 
+% % sp_ifr_fr= cell2mat(sp_ifr_fr(~cellfun('isempty', sp_ifr_fr)));
+% % 
+% % close all;
+% % plot(nanmean(sp_ifr_fr))
+
+%% Start Here For Running (IFR & FR) ÷ IFR, Recognition Predictors
+sp_ifr_fr= {};
+list_ifr_fr= {};
+op_ifr_fr= {};
+lag_ifr_fr= {};
+
 for subj= 1:length(nsubj)
     for ses= 1:length(nses)
-        if ~isempty(data.recalls(data.subject== nsubj(subj) & data.session== nses(ses),:))
+        if ~isempty(data.recalls(data.subject== nsubj(subj) & data.session== nses(ses)))
             ifr_idx= data.subject== nsubj(subj) & data.session== nses(ses);
+            recall= data.recalls(ifr_idx,:);
             recognized= data.pres.recognized(ifr_idx,:);
+            presitemnos= data.pres_itemnos(ifr_idx,:);
+            recitemnos= data.rec_itemnos(ifr_idx,:);
+            op= repmat(1:length(recall(1,:)), [LL 1]);
+            op(recall==0)=0;
+            lag= LL- recall+op-1;
+%             Set lag to inf because it can't be NaN or 0 
+            lag(recall==0)= inf;
+    %         Manually create list var
+            list = zeros(size(recall));
+            for i= 1:LL
+                list(i,:)= i;
+            end 
+            list(recall==0)=0;
+    %         Mask out all of the items not tested in FR
+            pres_nan= presitemnos(isnan(recognized));
+            recall(ismember(recitemnos, pres_nan))= nan;
+            op(isnan(recall))=nan;
+            list(isnan(recall))=nan;
+    %         The var 'ifr_fr' refers to sp ifr_fr.  
+            ifr_fr= recall;
+            wasnot_recog= ismember(recitemnos,presitemnos(recognized==0));
+            ifr_fr(wasnot_recog)= 0;
+            op_fr= op;
+            op_fr(wasnot_recog)= 0;
+            list_fr= list;
+            list_fr(wasnot_recog)= 0;
+            lag_fr= lag;
+            lag_fr(wasnot_recog)= inf;
+            
             
             for i = 1:LL
-                sp(i)= sum(nansum(recognized(:,i)))/(LL- sum(sum(isnan(recognized(:,i)))));
-                list(i)= sum(nansum(recognized(i,:)))/(LL- sum(sum(isnan(recognized(i,:)))));
+                sp_denom(i)= sum(sum(recall==i));
+                sp_num(i)= sum(sum(ifr_fr==i));
+                list_denom(i)= sum(sum(list==i));
+                list_num(i)= sum(sum(list_fr==i));
             end 
-        end 
-        sp_prop{subj,ses}= sp;
-        list_prop{subj,ses}= list;
-
-        
-        
-        
-        
-        
-    end 
-end 
-sp_prop= cell2mat(sp_prop(~cellfun('isempty', sp_prop)));
-list_prop= cell2mat(list_prop(~cellfun('isempty', list_prop)));
-
-close all;
-subplot(2,1,1)
-p1= plot(mean(sp_prop), 'o-')
-p1.Color= [0 0.5 1]
-ylim([0.75,1])
-xlim([1,LL])
-title('Probability of Recognition (SP)')
-subtitle('Replicated Original Recognition SP')
-xlabel('Serial Position')
-ylabel('Probability')
-
-colormap(pink)
-subplot(2,1,2)
-p2= plot(mean(list_prop), 'o-')
-p2.Color= [0.9 0 0.9]
-ylabel('Probability')
-ylim([0.75, 1])
-title('Probability of Recognition (List)')
-subtitle('Replicated Original Recognition List')
-xlabel('List')
-xlim([1, LL])
-%%
-
-sp2= [];
-sp_ifr_fr= {};
-for subj= 1:length(nsubj)
-    for ses= 1:length(nses)
-        
-        ifr_idx= data.subject== nsubj(subj) & data.session== nses(ses);
-        if sum(ifr_idx)~=0
-        recall= data.recalls(ifr_idx,:);
-        recognized= data.pres.recognized(ifr_idx,:);
-        presitemnos= data.pres_itemnos(ifr_idx,:);
-        recitemnos= data.rec_itemnos(ifr_idx,:);
-        
-        
-        find_nan= presitemnos(isnan(recognized));
-        recall(ismember(recitemnos, find_nan))= nan;
-        recitemnos(isnan(recall))=nan;
-        was_recalled= ismember(presitemnos(~isnan(recognized)),recitemnos);
-        
-        ifr_fr= recognized;
-        ifr_fr(~was_recalled)= 0;
-        
-        
-        
-        sp1= [];
-        sp2= [];
-        for i = 1:LL
-            sp1(i)= sum(sum(recall==i));
-            sp2(i)= nansum(ifr_fr(:,i));
-        end
-        sp_ifr_fr{subj,ses}= sp2./sp1;
-        
-        end
-        
-        
-        
-       
-    end 
-
-        
-end 
-
-sp_ifr_fr= cell2mat(sp_ifr_fr(~cellfun('isempty', sp_ifr_fr)));
-
-close all;
-plot(nanmean(sp_ifr_fr))
-
-
-%%
-%% Going through and trying to find where code breaks
-
-sp2= [];
-sp_ifr_fr= {};
-for subj= 1:length(nsubj)
-    for ses= 1:length(nses)
-        
-        ifr_idx= data.subject== nsubj(subj) & data.session== nses(ses);
-        if sum(ifr_idx)~=0
-        recall= data.recalls(ifr_idx,:);
-        recognized= data.pres.recognized(ifr_idx,:);
-        presitemnos= data.pres_itemnos(ifr_idx,:);
-        recitemnos= data.rec_itemnos(ifr_idx,:);
-        
-        
-%         This should be masking out correctly but the count is still off
-% e.g subject 63 session 4
-        find_nan= presitemnos(isnan(recognized)); %find the not tested in recognition items
-        recall(ismember(recitemnos, find_nan))= nan; %find the itemnos that match find_nan and set them to NaN in recall
-        
-        was_recalled= ismember(presitemnos(~isnan(recognized) & recognized>0),recitemnos); %Of tested recognition items, which were recalled during IFR
-        
-        ifr_fr= recognized;
-        ifr_fr(~ismember(presitemnos, recitemnos))=0;
-%         Just tried it out, does not work.
-%         ifr_fr= ismember(recitemnos, presitemnos(~isnan(recognized))) 
-        for i = 1:LL
-            sp1(i)= sum(sum(was_it_recog(:,1))); % how many IFR items presented in SP(i)?
-            sp2(i)= nansum(ifr_fr(:,i)); %SP= col for FR, how many IFR and FR items recognized in SP(i)?
-        end 
-        if any(any(isinf(sp2./sp1)))
-            keyboard
-        end 
-        
-        was_it_recog= ismember(recitemnos,presitemnos)
-
-%         Subject 84, Session 7, List 11, SP 7 is not getting masked out
-%         for some reason in final recognition.  
-        sp_ifr_fr{subj,ses}= sp2./sp1;
-        if any(any(isinf(sp_ifr_fr{subj,ses})))
-            keyboard
-%             sp_ifr_fr{subj,ses}(isinf(sp_ifr_fr{subj,ses}))=nan;
-        end 
+            
+            for i= 1:LL+4
+                op_denom(i)= sum(sum(op==i));
+                op_num(i)= sum(sum(op_fr==i));
+            end 
+            
+            for i = 1:30
+                lag_denom(i)= sum(sum(lag==i-1));
+                lag_num(i)= sum(sum(lag_fr==i-1));
+            end 
+            sp_ifr_fr{subj,ses}= sp_num./sp_denom;
+            list_ifr_fr{subj,ses}= list_num./list_denom;
+            op_ifr_fr{subj,ses}= op_num./op_denom;
+            lag_ifr_fr{subj,ses}= lag_num./lag_denom;
             
         end 
-       
-    end 
-
         
+        
+        
+    end 
 end 
-
 sp_ifr_fr= cell2mat(sp_ifr_fr(~cellfun('isempty', sp_ifr_fr)));
+list_ifr_fr= cell2mat(list_ifr_fr(~cellfun('isempty', list_ifr_fr)));
+op_ifr_fr= cell2mat(op_ifr_fr(~cellfun('isempty', op_ifr_fr)));
+lag_ifr_fr= cell2mat(lag_ifr_fr(~cellfun('isempty', lag_ifr_fr)));
+%% Plot SP IFR & FR/ IFR
+close all;
+plot(nanmean(sp_ifr_fr), 'o-')
+xlim([1 LL])
+ylim([0.75 1])
+xlabel('Serial Position')
+ylabel('Probability of FR')
+title('Probability of Final Recognition ƒ Serial Position')
+
+%% Plot List IFR & FR / IFR
+
+close all; 
+plot(nanmean(list_ifr_fr), 'o-')
+xlim([1 LL])
+ylim([0.75 1])
+xlabel('List')
+ylabel('Probability of FR')
+title('Probability of Final Recognition ƒ List')
+
+%% Plot OP IFR & FR / IFR
 
 close all;
-plot(nanmean(sp_ifr_fr))
 
-%% Test run on subject/session where INFs occurred
+plot(nanmean(op_ifr_fr), 'o-')
+xlim([1 20])
+ylim([0.75 1])
+xlabel('Output Position')
+ylabel('Probability of FR')
+title('Probability of Final Recognition ƒ Output Position')
 
-% Recall has a different number of 0's than recitemnos
+%% Plot Lag IFR & FR/ IFR
+close all;
 
-for subj= 16
-    for ses= 6
-        ifr_idx= data.subject== nsubj(subj) & data.session== nses(ses);
-        recall= data.recalls(ifr_idx,:);
-        recognized= data.pres.recognized(ifr_idx,:);
-        presitemnos= data.pres_itemnos(ifr_idx,:);
-        recitemnos= data.rec_itemnos(ifr_idx,:);
-%         Mask out all of the items not tested in FR
-        pres_nan= presitemnos(isnan(recognized));
-        ismember(recitemnos, pres_nan)
-        
-        
-    end 
-end 
+plot(nanmean(lag_ifr_fr), 'o-')
+ylim([0.75 1])
+xlim([1 30])
+xticks(1:2:30)
+xticklabels(0:2:30)
+xlabel('Study-Test Lag')
+ylabel('Probability of FR')
+title('Probability of Final Recognition ƒ Study-Test Lag')
