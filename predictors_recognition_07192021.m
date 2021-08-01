@@ -644,9 +644,9 @@ for subj= 1:length(nsubj)
         recall(ismember(recitemnos, find_nan))= nan;
         recitemnos(isnan(recall))=nan;
         was_recalled= ismember(presitemnos(~isnan(recognized)),recitemnos);
-        k= recognized;
+        
         ifr_fr= recognized;
-        ifr_fr(~was_recalled)= nan;
+        ifr_fr(~was_recalled)= 0;
         
         
         
