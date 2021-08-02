@@ -742,7 +742,8 @@ op_ifr_fr= {};
 lag_ifr_fr= {};
 sp_12= {};
 all_recognized= {};
-
+op_getdenom= {};
+op_getnum= {};
 
 
 
@@ -832,14 +833,16 @@ for subj= 1:length(nsubj)
             list_all= list(recall>0 & ~isnan(recog));
             lag_all= lag(recall>0 & ~isnan(recog));
             subject_all= subject(recall>0 & ~isnan(recog));
-            session_all= session(recall>0);
-            recog_all= recog(recall>0);
+            session_all= session(recall>0 & ~isnan(recog));
+            recog_all= recog(recall>0 & ~isnan(recog));
             sp_ifr_fr{subj,ses}= sp_num./sp_denom;
             list_ifr_fr{subj,ses}= list_num./list_denom;
             op_ifr_fr{subj,ses}= op_num./op_denom;
             lag_ifr_fr{subj,ses}= lag_num./lag_denom;
             sp_12{subj,ses}= sp_num(12)./sp_denom(12);
             all_recognized{subj,ses}= [subject_all, session_all, sp_all, op_all, list_all, lag_all, recog_all];
+            op_getdenom{subj,ses}= op_denom;
+            op_getnum{subj,ses}= op_num;
             
         end 
 
@@ -854,6 +857,8 @@ list_ifr_fr= cell2mat(list_ifr_fr(~cellfun('isempty', list_ifr_fr)));
 op_ifr_fr= cell2mat(op_ifr_fr(~cellfun('isempty', op_ifr_fr)));
 lag_ifr_fr= cell2mat(lag_ifr_fr(~cellfun('isempty', lag_ifr_fr)));
 sp_12= cell2mat(sp_12(~cellfun('isempty', sp_12)));
+op_getdenom= cell2mat(op_getdenom(~cellfun('isempty', op_getdenom)));
+op_getnum= cell2mat(op_getnum(~cellfun('isempty', op_getnum)));
 
 % Save Data
 all_recognized= cell2mat(all_recognized(~cellfun('isempty', all_recognized)));
@@ -890,6 +895,12 @@ ylim([0.75 1])
 xlabel('Output Position')
 ylabel('Probability of FR')
 title('Probability of Final Recognition ƒ Output Position')
+hold on
+plot(15, nanmean(op_getnum(:,15)./op_getdenom(:,15)), 'r*')
+hold on
+plot(16, nanmean(op_getnum(:,16)./op_getdenom(:,16)), 'g*')
+
+
 
 %% Plot Lag IFR & FR/ IFR
 close all;

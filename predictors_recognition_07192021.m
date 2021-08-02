@@ -742,7 +742,8 @@ op_ifr_fr= {};
 lag_ifr_fr= {};
 sp_12= {};
 all_recognized= {};
-
+op_getdenom= {};
+op_getnum= {};
 
 
 
@@ -840,6 +841,8 @@ for subj= 1:length(nsubj)
             lag_ifr_fr{subj,ses}= lag_num./lag_denom;
             sp_12{subj,ses}= sp_num(12)./sp_denom(12);
             all_recognized{subj,ses}= [subject_all, session_all, sp_all, op_all, list_all, lag_all, recog_all];
+            op_getdenom{subj,ses}= op_denom;
+            op_getnum{subj,ses}= op_num;
             
         end 
 
@@ -854,6 +857,8 @@ list_ifr_fr= cell2mat(list_ifr_fr(~cellfun('isempty', list_ifr_fr)));
 op_ifr_fr= cell2mat(op_ifr_fr(~cellfun('isempty', op_ifr_fr)));
 lag_ifr_fr= cell2mat(lag_ifr_fr(~cellfun('isempty', lag_ifr_fr)));
 sp_12= cell2mat(sp_12(~cellfun('isempty', sp_12)));
+op_getdenom= cell2mat(op_getdenom(~cellfun('isempty', op_getdenom)));
+op_getnum= cell2mat(op_getnum(~cellfun('isempty', op_getnum)));
 
 % Save Data
 all_recognized= cell2mat(all_recognized(~cellfun('isempty', all_recognized)));
@@ -890,6 +895,13 @@ ylim([0.75 1])
 xlabel('Output Position')
 ylabel('Probability of FR')
 title('Probability of Final Recognition ƒ Output Position')
+hold on
+plot(15, nanmean(op_getnum(:,15)./op_getdenom(:,15)), 'r*')
+hold on
+plot(16, nanmean(op_getnum(:,16)./op_getdenom(:,16)), 'g*')
+hold on
+plot(17, nanmean(op_getnum(:,17)./op_getdenom(:,17)), 'b*')
+legend({'Output Position Curve', 'Prob OP 15', 'Prob OP 16','Prob OP 17'}, 'Location', 'SE')
 
 %% Plot Lag IFR & FR/ IFR
 close all;
