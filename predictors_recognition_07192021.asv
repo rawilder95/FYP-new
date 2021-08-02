@@ -572,7 +572,9 @@ all_recognized= cell2mat(all_recognized(~cellfun('isempty', all_recognized)));
 savefile= 'recognition_mat_7212021.csv';
     dlmwrite(savefile, all_recognized)
 %% Past Attempts. Ignore.
-%I'm leaving this hear in case something com
+%I'm leaving this hear temporarily, just in case. 
+
+
 % %   % Redoing SP and List Recognition Only
 % % 
 % %   
@@ -738,10 +740,16 @@ sp_ifr_fr= {};
 list_ifr_fr= {};
 op_ifr_fr= {};
 lag_ifr_fr= {};
+sp_12= {};
+all_recognized= {};
+
+
+
 
 for subj= 1:length(nsubj)
     for ses= 1:length(nses)
         if ~isempty(data.recalls(data.subject== nsubj(subj) & data.session== nses(ses)))
+            recall= [];
             ifr_idx= data.subject== nsubj(subj) & data.session== nses(ses);
             recall= data.recalls(ifr_idx,:);
             recognized= data.pres.recognized(ifr_idx,:);
@@ -791,12 +799,51 @@ for subj= 1:length(nsubj)
                 lag_denom(i)= sum(sum(lag==i-1));
                 lag_num(i)= sum(sum(lag_fr==i-1));
             end 
+    %       Set recognition matrix to size(recall)
+            recog= zeros(size(recall));
+            recog(:,1:LL)= recognized;
+            if ~isempty(recog(ismember(recitemnos, presitemnos(isnan(recognized)))))
+                recog(ismember(recitemnos, presitemnos(isnan(recognized))))= inf;
+            end 
+
+    %        
+            %Reshape predictors the way it was done in IFR FR models
+            recall= reshape(recall', numel(recall), 1);
+            op= reshape(op', numel(recall), 1);
+            lag= reshape(lag', numel(lag), 1);
+            lag(isinf(lag))= nan; 
+            %Change it back to NaN because non tested items
+            %have already been removed.
+
+            list= reshape(list', numel(list), 1);
+            subject= recall;
+            subject(:,1)= nsubj(subj);
+            session= recall;
+            session(:,1)= nses(ses);
+            recog= reshape(recog', numel(recog), 1);
+
+
+
+
+
+
+            sp_all= recall(recall>0 & ~isnan(recog));
+            op_all = op(recall>0 & ~isnan(recog));
+            list_all= list(recall>0 & ~isnan(recog));
+            lag_all= lag(recall>0 & ~isnan(recog));
+            subject_all= subject(recall>0 & ~isnan(recog));
+            session_all= session(recall>0);
+            recog_all= recog(recall>0);
             sp_ifr_fr{subj,ses}= sp_num./sp_denom;
             list_ifr_fr{subj,ses}= list_num./list_denom;
             op_ifr_fr{subj,ses}= op_num./op_denom;
             lag_ifr_fr{subj,ses}= lag_num./lag_denom;
+            sp_12{subj,ses}= sp_num(12)./sp_denom(12);
+            all_recognized{subj,ses}= [subject_all, session_all, sp_all, op_all, list_all, lag_all, recog_all];
             
         end 
+
+        
         
         
         
@@ -806,15 +853,23 @@ sp_ifr_fr= cell2mat(sp_ifr_fr(~cellfun('isempty', sp_ifr_fr)));
 list_ifr_fr= cell2mat(list_ifr_fr(~cellfun('isempty', list_ifr_fr)));
 op_ifr_fr= cell2mat(op_ifr_fr(~cellfun('isempty', op_ifr_fr)));
 lag_ifr_fr= cell2mat(lag_ifr_fr(~cellfun('isempty', lag_ifr_fr)));
+sp_12= cell2mat(sp_12(~cellfun('isempty', sp_12)));
+
+% Save Data
+all_recognized= cell2mat(all_recognized(~cellfun('isempty', all_recognized)));
+savefile= 'recognition_mat_7212021.csv';
+    dlmwrite(savefile, all_recognized)
 %% Plot SP IFR & FR/ IFR
 close all;
 plot(nanmean(sp_ifr_fr), 'o-')
+hold on
+plot(12, nanmean(sp_12), 'r*')
 xlim([1 LL])
 ylim([0.75 1])
 xlabel('Serial Position')
 ylabel('Probability of FR')
 title('Probability of Final Recognition ƒ Serial Position')
-
+legend({'ALL SP', 'SP 12'})
 %% Plot List IFR & FR / IFR
 
 close all; 

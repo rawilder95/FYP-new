@@ -2,15 +2,12 @@
 ########################################################
 
 # install.packages("lme4", type= "binary")
-defaultW <- getOption("warn")
-options(warn = -1)
+# defaultW <- getOption("warn")
+# options(warn = -1)
 library(lme4)
-
 library(MuMIn)
-
 # install.packages("data.table")
 library("ggplot2")
-
 library("data.table")
 # install.packages("lmerTest")
 library(lmerTest)
@@ -23,7 +20,7 @@ target_dir <- "/Users/rebeccawilder/FYP-new"
 setwd(target_dir)
 my_data <- read.csv(file= "recognition_mat_7212021.csv")
 my_data <- data.table(my_data)
-data_names <- c("subject", "session", "sp", "op", "lag", "list", "recognized")
+data_names <- c("subject", "session", "sp", "op", "list", "lag", "recognized")
 colnames(my_data) <- data_names
 my_data[,sp2:= sp^2]
 my_data[, list2:= list^2]
@@ -35,13 +32,19 @@ my_data$recog[my_data$recog== "FALSE"] <- paste("NO")
 
 ####### Final Recognition #############
 # Model OP and List
-list_op <- glmer(data= my_data, formula= recognized ~ op + op2+ list+ list2+ (1|subject), family= "binomial")
+list_op <- glmer(data= my_data, formula= recognized ~ op + op2+ list+ list2+ (1|subject)+ (1|session), family= "binomial")
+
 summary(list_op)
 r.squaredGLMM(list_op)
 my_data[, flist_op:= fitted(list_op)]
 
+
+
+
+
+
 # Plot OP and List
-ggplot(data= my_data, aes(x= recog, y= flist_op))+ geom_jitter(height= 0, width= 0.4, alpha= 0.2, color= "hot pink")+ ylim(0.6, 1)+ labs(title= "List, OP, & Quadratic Terms", x=("Was it Recognized?"), y= "Fitted Values")+ geom_violin(alpha= 0.5, draw_quantiles = mean(my_data$flist_op), trim= TRUE)
+ggplot(data= my_data, aes(x= recog, y= flist_op))+ geom_jitter(height= 0, width= 0.4, alpha= 0.2, color= "hot pink")+ ylim(0.5, 1)+ labs(title= "List, OP, & Quadratic Terms", x=("Was it Recognized?"), y= "Fitted Values")+ geom_violin(alpha= 0.5, draw_quantiles = mean(my_data$flist_op), trim= TRUE)
  ggsave("recog_list_op", device= "png", dpi= 300)
 
 
@@ -167,15 +170,22 @@ ggplot(data= my_data)+ geom_histogram(aes(x= res_list_op_lag, fill= is_it_listop
 ggsave("hist_residuals_list_op_lag", device= "png", dpi= 300)
 
 
+res_listop <- fitted(list_op)- my_data$recognized
+res_listoplag <- fitted(list_op_lag)- my_data$recognized
+is_it= residuals(list_op, type= "response")<0.5 & residuals(list_op, type= "response")> -0.5
+is_it[is_it== FALSE] <- print(paste("Within Range"))
+is_it[is_it== TRUE] <- print(paste("Exceeds Range"))
 
 
 
-mod1 <- glmer(data= my_data, recognized~ list+op+ (1|subject), family= "binomial")
+ggplot(data= my_data)+ geom_histogram(aes(x= res_listop, fill= is_it), bins= 1000)+ labs(fill= "Deviation from Prediction", x= "Residuals", y= "Count")
 
-ggplot(data= my_data, aes(x= recog, y= residuals(mod1)))+ geom_jitter(data= my_data, aes(x= recog, y= residuals(mod1)), alpha = 0.2)+ geom_violin(alpha= 0.75, draw_quantiles = 0.5, trim= FALSE)+ labs(title= "List & OP no Quadratic Terms", subtitle= "BIC= 22901.2, R^2= 0.167")
-
-
-# is_it_listop= residuals(mod1, type= "response")< 0.5 & residuals(mod1, type= "response")> -0.5
-# is_it_listop[is_it_listop== "FALSE"] <- paste ("Exceeds Threshold")
-# is_it_listop[is_it_listop== "FALSE"] <- paste ("Target Range")
  
+ggplot(data= my_data)+ geom_histogram(aes(x= residuals(list_op, type= "response"), fill= is_it), bins= 1000)+ labs(fill= "Deviation from Prediction", x= "Residuals", y= "Count")
+
+
+list_op_avg <- mean(fitted(list_op))
+my_data$recognized- list_op_avg
+
+ggplot(data= my_data, aes(x= my_data$sp, y= fitted(list_op)), height= 0) + geom_jitter(aes(x= my_data$sp, y= fitted(list_op)), alpha= 0.1)+geom_smooth(method= "lm")
+
