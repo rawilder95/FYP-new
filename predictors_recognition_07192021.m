@@ -248,7 +248,7 @@ for subj= 1:length(nsubj)
                lag_num(i)= sum(sum(fr_lag==i-1));
            end 
            
-           for i = 1:max(max(op))
+           for i = 1:23
                op_denom(i)= sum(sum(op==i));
                op_num(i)= sum(sum(fr_op==i));
                
@@ -871,11 +871,11 @@ plot(nanmean(sp_ifr_fr), 'o-')
 hold on
 plot(12, nanmean(sp_12), 'r*')
 xlim([1 LL])
-ylim([0.75 1])
+ylim([0 1])
 xlabel('Serial Position')
 ylabel('Probability of FR')
 title('Probability of Final Recognition ƒ Serial Position')
-legend({'ALL SP', 'SP 12'})
+legend({'ALL SP', 'SP 12'}, 'Location', 'se')
 %% Plot List IFR & FR / IFR
 
 close all; 
@@ -941,25 +941,30 @@ for subj= 1:length(nsubj)
             was_recalled= recitemnos(recitemnos>0);
             %Match the pres_itemnos that match IFR rec_itemnos
             recognized2= recognized;
-            recognized2(~ismember(presitemnos, was_recalled))=nan;
-            recognized(ismember(presitemnos, was_recalled))= nan;
+%             recognized2(~ismember(presitemnos, was_recalled))=nan;
+            %If an item was recalled and is in presitemnos, set it to NaN
+            recognized2(ismember(presitemnos, was_recalled))= nan;
             for i = 1:LL
-                fr_num_sp(i)= sum(sum(recognized(:,i)==1));
+                fr_num_sp(i)= sum(sum(recognized2(:,i)==1));
+                %Denominator taken out of all possible opportunities i.e.
+                %~isnan(recognition(:,i)) that an item in that SP could
+                %have been recalled
                 fr_denom_sp(i)= sum(sum(~isnan(recognized(:,i))));
-                fr_num_list(i)= sum(sum(recognized(i,:)==1));
+                fr_num_list(i)= sum(sum(recognized2(i,:)==1));
                 fr_denom_list(i)= sum(sum(~isnan(recognized(i,:))));
-                ifr_num_sp(i)= sum(sum(recognized2(:,i)==1));
+                ifr_num_sp(i)= sum(sum(recall== i));
                 ifr_denom_sp(i)= LL;
-                
-                ifr_num_list(i)= sum(nansum(recognized2(i,:)==1));
-                ifr_denom_list(i)= LL;
+               
+            
+%                 ifr_num_list(i)= sum(nansum(recognized2(i,:)==1));
+%                 ifr_denom_list(i)= LL- sum(sum(isnan(recognized2(i,:))));
                 
             end 
             
             nifr_sp{subj,ses}= fr_num_sp./fr_denom_sp;
             nifr_list{subj,ses}= fr_num_list./fr_denom_list;
             ifr_sp{subj,ses}= ifr_num_sp./ ifr_denom_sp; 
-            ifr_list{subj,ses}= ifr_num_list ./ ifr_denom_list;
+%             ifr_list{subj,ses}= ifr_num_list ./ ifr_denom_list;
         end 
     end 
 end 
@@ -982,41 +987,64 @@ ifr_list= cell2mat(ifr_list(~cellfun('isempty', ifr_list)));
 
 %% Plot Figures SP
 figure(2)
+close all;
 %FR Only
-subplot(2,1,1)
+% subplot(2,1,1)
 plot(nanmean(nifr_sp), 'o-', 'Color', [0.4170    0.3023    0.1863])
-ylim([0.7 1])
-xlim([1 LL])
-xticks([1:LL])
-title('Probability of Final Recognition ƒ Serial Position')
-subtitle('No IFR Items')
-
-%IFR Comparison
-subplot(2,1,2)
-plot(nanmean(ifr_sp), 'o-', 'Color', [0.7203    0.1468    0.3456])
 ylim([0 1])
 xlim([1 LL])
 xticks([1:LL])
 title('Probability of Final Recognition ƒ Serial Position')
-subtitle('IFR Items')
-%% Plot Figures List
-figure(2)
-%FR Only
+subtitle('No IFR Items')
+ylabel('Probability')
+xlabel('Serial Position')
+
+% IFR Comparison
+% subplot(2,1,2)
+% plot(nanmean(nifr_list), 'o-', 'Color', [0.7203    0.1468    0.3456])
+% ylim([0 1])
+% xlim([1 LL])
+% xticks([1:LL])
+% xlabel('List')
+% title('Probability of Final Recognition ƒ List')
+% subtitle('No IFR Items')
+% ylabel('Probability')
+
+%% Double Checking Something with Final Rec
+sp_all= {};
+just_rec= {};
+for subj= 1:length(nsubj)
+    for ses= 1:length(nses)
+        ifr_idx= data.subject== nsubj(subj) & data.session == nses(ses);
+        if sum(sum(ifr_idx))>0
+            recall= data.recalls(ifr_idx,:); 
+            recognized= data.pres.recognized(ifr_idx,:);
+            recitemnos= data.rec_itemnos(ifr_idx,:);
+            presitemnos= data.pres_itemnos(ifr_idx,:);
+            
+            not_tested= presitemnos(isnan(recognized));
+            %Mask out non-tested (recognition) items 
+            recall(ismember(recitemnos, not_tested))= nan;
+            not_recognized= presitemnos(recognized==0);
+            ifr_only= recall;
+            ifr_only(ismember(recitemnos, not_recognized))= 0;
+            for i = 1:LL
+                sp_prop(i)= sum(sum(ifr_only==i))./sum(sum(recall==i));
+            end 
+            sp_all{subj,ses}= sp_prop;
+            just_rec{subj,ses}= nanmean(recognized);
+        end 
+    end 
+end 
+
+sp_all= cell2mat(sp_all(~cellfun('isempty', sp_all)));
+just_rec= cell2mat(just_rec(~cellfun('isempty', just_rec)));
+
+close all;
 subplot(2,1,1)
-plot(nanmean(nifr_list), 'o-', 'Color', [0.4170    0.3023    0.1863])
-ylim([0.5 1])
+plot(nanmean(sp_all), '-o')
 xlim([1 LL])
-xticks([1:LL])
-title('Probability of Final Recognition ƒ List')
-subtitle('No IFR Items')
-
-%IFR Comparison
-
 subplot(2,1,2)
-plot(nanmean(ifr_list), 'o-', 'Color', [0.7203    0.1468    0.3456])
-ylim([0 1])
+plot(nanmean(just_rec), '-o')
 xlim([1 LL])
-xticks([1:LL])
-title('Probability of Final Recognition ƒ List')
-subtitle('IFR Items')
-
+ylim([0.75 1])

@@ -142,7 +142,7 @@ pfr= cell2mat(npfr);
 pfr= reshape(pfr, length(pfr)/16, 16)
 %plot(mean(pfr'), '-o')
 xlim([1 length(pfr)])
-ylim([0.15, 0.5])
+ylim([0, 1])
 hold on
 std_pfr= std(mean(pfr'))*mean(pfr')
 e= errorbar(mean(pfr'), std_pfr);
