@@ -309,9 +309,9 @@ for subj= 1:length(nsubj)
                 ifr_rn= recognized;
 %                 find presitemnos that match recalled items
 %                 set those indices in ifr_rn to 0
-                ifr_rn(ismember(presitemnos, wasit_rc))=0;
+                ifr_rn(ismember(presitemnos, wasit_rc))=nan;
                 for i = 1:LL
-                    sp_denom(i)= sum(sum(~isnan(recognized(:,i))));
+                    sp_denom(i)= sum(sum(~isnan(ifr_rn(:,i))));
                     sp_num(i)= sum(sum(ifr_rn(:,i)==1));
                 end
                 all_nan{subj,ses}= sp_num./sp_denom;
@@ -327,9 +327,9 @@ for subj= 1:length(nsubj)
                 ifr_rn= recognized;
 %                 find presitemnos that match recalled items
 %                 set those indices in ifr_rn to 0
-                ifr_rn(ismember(presitemnos, wasit_rc))=0;
+                ifr_rn(ismember(presitemnos, wasit_rc))=nan;
                 for i = 1:LL
-                    sp_denom1(i)= sum(sum(~isnan(recognized(:,i))));
+                    sp_denom1(i)= sum(sum(~isnan(ifr_rn(:,i))));
                     sp_num1(i)= sum(sum(ifr_rn(:,i)==1));
                 end
                 
@@ -341,9 +341,9 @@ for subj= 1:length(nsubj)
                 ifr_rn= recognized;
 %                 find presitemnos that match recalled items
 %                 set those indices in ifr_rn to 0
-                ifr_rn(ismember(presitemnos, wasit_rc))=0;
+                ifr_rn(ismember(presitemnos, wasit_rc))= nan;
                 for i = 1:LL
-                    sp_denom2(i)= sum(sum(~isnan(recognized(:,i))));
+                    sp_denom2(i)= sum(sum(~isnan(ifr_rn(:,i))));
                     sp_num2(i)= sum(sum(ifr_rn(:,i)==1));
                 end
                 
@@ -356,9 +356,9 @@ for subj= 1:length(nsubj)
                 ifr_rn= recognized;
 %                 find presitemnos that match recalled items
 %                 set those indices in ifr_rn to 0
-                ifr_rn(ismember(presitemnos, wasit_rc))=0;
+                ifr_rn(ismember(presitemnos, wasit_rc))=nan;
                 for i = 1:LL
-                    sp_denom3(i)= sum(sum(~isnan(recognized(:,i))));
+                    sp_denom3(i)= sum(sum(~isnan(ifr_rn(:,i))));
                     sp_num3(i)= sum(sum(ifr_rn(:,i)==1));
                 end
                 
@@ -370,13 +370,16 @@ for subj= 1:length(nsubj)
                 ifr_rn= recognized;
 %                 find presitemnos that match recalled items
 %                 set those indices in ifr_rn to 0
-                ifr_rn(ismember(presitemnos, wasit_rc))=0;
+                ifr_rn(ismember(presitemnos, wasit_rc))=nan;
                 for i = 1:LL
-                    sp_denom4(i)= sum(sum(~isnan(recognized(:,i))));
+                    sp_denom4(i)= sum(sum(~isnan(ifr_rn(:,i))));
                     sp_num4(i)= sum(sum(ifr_rn(:,i)==1));
                 end
                 
                 hi_nan{subj,ses}= sp_num4./sp_denom4;
+%                 if any(any(isnan(recognized)))
+%                     keyboard
+%                 end 
                
             end 
         end 
@@ -392,7 +395,7 @@ all_nan= cell2mat(all_nan(~cellfun('isempty', all_nan)));
 %% Plot No NaNs 
 close all;
 plot(nanmean(low_nan), '-o')
-ylim([0 0.75])
+ylim([0 1])
 xlim([1 LL])
 title('SPC Final Recognition Exclude IFR Items')
 subtitle('No NaNs')
@@ -402,7 +405,7 @@ ylabel('Probability')
 %% Plot Low NaN's 
 close all;
 plot(nanmean(lomid_nan), '-o')
-ylim([0 0.75])
+ylim([0 1])
 xlim([1 LL])
 title('SPC Final Recognition Exclude IFR Items')
 subtitle('Mid-Low NaNs')
@@ -412,7 +415,7 @@ ylabel('Probability')
 %% Plot Mid-Hi NaNs 
 close all;
 plot(nanmean(himid_nan), '-o')
-ylim([0 0.75])
+ylim([0 1])
 xlim([1 LL])
 title('SPC Final Recognition Exclude IFR Items')
 subtitle('Mid-High NaNs')
@@ -422,7 +425,7 @@ ylabel('Probability')
 %% Plot Hi-NaNs
 close all;
 plot(nanmean(hi_nan), '-o')
-ylim([0 0.75])
+ylim([0 1])
 xlim([1 LL])
 title('SPC Final Recognition Exclude IFR Items')
 subtitle('High NaNs')
@@ -432,7 +435,7 @@ ylabel('Probability')
 %% Plot All NaN
 close all;
 plot(nanmean(all_nan), '-o')
-ylim([0 0.75])
+ylim([0 1])
 xlim([1 LL])
 title('SPC Final Recognition Exclude IFR Items')
 subtitle('Not Conditional on NaN Count, Spot Checking Work')

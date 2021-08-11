@@ -17,7 +17,7 @@ addpath(genpath('/Users/rebeccawilder/Desktop/CMR/'))
 counter= 0;
 %basic subfields
 load('updated_peers_recognition.mat')
-data= new_data;
+data= new_data; 
 
 ifr_sp= data;
 
@@ -949,7 +949,7 @@ for subj= 1:length(nsubj)
                 %Denominator taken out of all possible opportunities i.e.
                 %~isnan(recognition(:,i)) that an item in that SP could
                 %have been recalled
-                fr_denom_sp(i)= sum(sum(~isnan(recognized(:,i))));
+                fr_denom_sp(i)= sum(sum(~isnan(recognized2(:,i))));
                 fr_num_list(i)= sum(sum(recognized2(i,:)==1));
                 fr_denom_list(i)= sum(sum(~isnan(recognized(i,:))));
                 ifr_num_sp(i)= sum(sum(recall== i));
