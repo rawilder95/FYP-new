@@ -616,12 +616,11 @@ for subj= 1:length(nsubj)
             
             %Items that were recalled
            rec_mask1= make_clean_recalls_mask2d(recall);
-           rec_mask1;
+           rec_mask1= recitemnos(ismember(recitemnos, rec_mask), presitemnos)
            
       
            %Items that were not recalled
-           rec_mask2= recognized;
-           recitemnos(ismember(recitemnos(rec_mask), presitemnos));
+           rec_mask2= make_clean_recalls_mask2d(recall);
            
                 %Something was recalled
                 wasit_rc= recitemnos(recall~=0 & ~isnan(recall));
