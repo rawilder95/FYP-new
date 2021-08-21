@@ -29,3 +29,8 @@ my_data[, lag2:= lag^2]
 my_data[, recog:= recognized==1]
 my_data$recog[my_data$recog== "TRUE"] <- paste("YES")
 my_data$recog[my_data$recog== "FALSE"] <- paste("NO")
+
+######## List, OP, and Quadratic Terms
+mod1 <- glmer(data= my_data, recognized~ op + op2 + list + list2 + (1|subject)+ (1|session), family= "binomial")
+r2mod1 <- r.squaredGLMM(mod1)
+
