@@ -85,8 +85,7 @@ for subj= 1:length(nsubj)
           
           
           % Add these values all together
-          all_cond{subj,ses}= include_ifr{subj,ses}+ exclude_ifr{subj,ses};
-          %- ifr_aserror{subj,ses};
+          all_cond{subj,ses}= include_ifr{subj,ses}+ exclude_ifr{subj,ses} - ifr_aserror{subj,ses};
         end 
     end 
 end 
@@ -109,6 +108,5 @@ hold on
 plot(mean(all_cond), 'mo-' )
 
 xlim([1 LL])
-legend(pnames, 'location', 'bestoutside')
-
+legend(pnames, 'location', 'center')
 
